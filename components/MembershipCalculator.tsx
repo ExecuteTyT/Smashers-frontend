@@ -190,12 +190,12 @@ const MembershipCalculator: React.FC = () => {
   const availableItems = organizedData[activeCategory]?.[activeLocation] || [];
 
   return (
-    <div className="w-full bg-slate-900 rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden">
+    <div className="w-full bg-slate-900 rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-12 shadow-2xl border border-white/5 relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
         
-        <h2 className="font-display font-black text-3xl md:text-5xl text-white uppercase mb-10 relative z-10 text-center md:text-left">
+        <h2 className="font-display font-black text-2xl sm:text-3xl md:text-5xl text-white uppercase mb-6 sm:mb-8 md:mb-10 relative z-10 text-center md:text-left leading-tight">
             КАЛЬКУЛЯТОР <span className="text-emerald-500">ВЫГОДЫ</span>
         </h2>
 
@@ -273,50 +273,50 @@ const MembershipCalculator: React.FC = () => {
             {/* RIGHT COLUMN: GOLDEN TICKET */}
             <div className="lg:pl-10">
                 {currentItem ? (
-                    <div className="sticky top-24 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500">
+                    <div className="sticky top-24 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500">
                          {/* Shine Effect */}
                          <div className="absolute top-0 -left-[100%] w-[200%] h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 group-hover:animate-shine pointer-events-none"></div>
 
                          <div className="relative z-10">
                              <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6 gap-4">
-                                 <div className="flex-1">
-                                     <span className="inline-block px-3 py-1 rounded bg-white/10 text-gray-300 text-[10px] font-black uppercase tracking-widest mb-2 border border-white/5">
+                                 <div className="flex-1 min-w-0">
+                                     <span className="inline-block px-2 py-1 rounded bg-white/10 text-gray-300 text-[10px] md:text-[10px] font-black uppercase tracking-widest mb-2 border border-white/5">
                                          {activeLocation}
                                      </span>
-                                     <h3 className="font-display font-black text-2xl md:text-3xl text-white uppercase leading-tight">
+                                     <h3 className="font-display font-black text-lg sm:text-xl md:text-3xl text-white uppercase leading-tight break-words">
                                          {currentItem.name}
                                      </h3>
                                  </div>
                                  {savings > 0 && (
-                                     <div className="flex flex-col items-start md:items-end animate-pulse bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 md:px-3 md:py-2">
-                                         <span className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">ВЫГОДА</span>
-                                         <span className="text-emerald-400 font-display font-bold text-xl md:text-lg">+{savings.toLocaleString('ru-RU')}₽</span>
+                                     <div className="flex flex-col items-start md:items-end animate-pulse bg-emerald-500/10 border border-emerald-500/30 rounded-lg md:rounded-xl px-3 py-2 md:px-3 md:py-2 shrink-0">
+                                         <span className="text-emerald-400 font-black text-[9px] sm:text-[10px] md:text-xs uppercase tracking-widest">ВЫГОДА</span>
+                                         <span className="text-emerald-400 font-display font-bold text-lg sm:text-xl md:text-lg leading-tight">+{savings.toLocaleString('ru-RU')}₽</span>
                                      </div>
                                  )}
                              </div>
 
-                             <div className="py-8 border-y border-white/10 mb-8">
-                                 <div className="flex items-baseline gap-2">
-                                     <span className="font-display font-black text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white">
+                             <div className="py-6 md:py-8 border-y border-white/10 mb-6 md:mb-8">
+                                 <div className="flex items-baseline gap-1 md:gap-2 flex-wrap">
+                                     <span className="font-display font-black text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-white leading-none">
                                          {currentItem.price.toLocaleString('ru-RU')}
                                      </span>
-                                     <span className="text-xl text-gray-400 font-bold">₽</span>
+                                     <span className="text-lg sm:text-xl md:text-xl text-gray-400 font-bold">₽</span>
                                  </div>
                                  {currentItem.sessionCount > 1 && (
-                                    <p className="text-emerald-400/80 font-bold text-sm mt-2">
-                                        ~{Math.round(currentItem.price / currentItem.sessionCount)} ₽ / занятие
+                                    <p className="text-emerald-400/80 font-bold text-xs sm:text-sm mt-2">
+                                        ~{Math.round(currentItem.price / currentItem.sessionCount).toLocaleString('ru-RU')} ₽ / занятие
                                     </p>
                                  )}
                              </div>
 
                              <button 
                                 onClick={() => openBooking('membership', currentItem.id, currentItem.name)}
-                                className="w-full bg-white text-slate-900 py-5 rounded-xl font-black text-sm uppercase tracking-[0.2em] hover:bg-emerald-400 transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] active:scale-95"
+                                className="w-full bg-white text-slate-900 py-4 md:py-5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-[0.1em] sm:tracking-[0.2em] hover:bg-emerald-400 transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] active:scale-95"
                              >
                                  ОФОРМИТЬ
                              </button>
                              
-                             <p className="text-center text-gray-500 text-[10px] uppercase font-bold tracking-widest mt-4">
+                             <p className="text-center text-gray-500 text-[11px] sm:text-[10px] uppercase font-bold tracking-wide sm:tracking-widest mt-4 leading-relaxed px-2">
                                  Действует 30 дней с момента активации
                              </p>
                          </div>
