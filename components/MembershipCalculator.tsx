@@ -49,12 +49,8 @@ const MembershipCalculator: React.FC = () => {
         let items = allRes.data || [];
         const singleItem = singleRes.data;
 
-        // Фильтруем подарочные сертификаты (исключаем тип "Подарочный серт")
-        items = items.filter(item => {
-          const type = item.type?.toLowerCase() || '';
-          // Исключаем подарочные сертификаты
-          return !type.includes('подарочн') && !type.includes('серт');
-        });
+        // НЕ фильтруем подарочные сертификаты здесь - фильтрация будет при организации данных
+        // по категориям (исключаем только для adults/kids, но оставляем для personal)
 
         // Ensure single item is in the list if not present (it acts as base for 1 session)
         if (singleItem && singleItem.id && !items.find(m => m.id === singleItem.id)) {
@@ -96,13 +92,10 @@ const MembershipCalculator: React.FC = () => {
       // Safety check to prevent crashing if data is malformed
       if (!item || !item.name) return;
 
-      // Дополнительная фильтрация: исключаем подарочные сертификаты по типу
-      const type = item.type?.toLowerCase() || '';
-      if (type.includes('подарочн') || type.includes('серт')) {
-        return; // Пропускаем подарочные сертификаты
-      }
-
       const name = item.name.toLowerCase();
+      const type = item.type?.toLowerCase() || '';
+      const isGiftCertificate = type.includes('подарочн') || type.includes('серт');
+      
       let cat: CategoryKey = 'adults';
       let loc = 'Центр (ЦБ)';
 
@@ -110,13 +103,18 @@ const MembershipCalculator: React.FC = () => {
       if (name.includes('дети')) {
         cat = 'kids';
         loc = 'Максимус';
+        // Для категории "kids" исключаем подарочные сертификаты
+        if (isGiftCertificate) return;
       } else if (name.includes('персональн') || name.includes('личная')) {
         cat = 'personal';
         loc = 'Любой зал';
+        // Для категории "personal" ОСТАВЛЯЕМ подарочные сертификаты (все персональные - это подарочные)
       } else {
         cat = 'adults';
         if (name.includes('ямашева')) loc = 'Ямашева';
         else loc = 'Центр (ЦБ)';
+        // Для категории "adults" исключаем подарочные сертификаты
+        if (isGiftCertificate) return;
       }
 
       if (!data[cat][loc]) data[cat][loc] = [];
