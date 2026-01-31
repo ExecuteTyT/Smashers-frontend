@@ -134,8 +134,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <footer className="relative bg-slate-900 overflow-hidden pt-16 pb-32 md:pb-10 w-full shrink-0 border-t border-white/5">
          
          {/* Background Text "SMASHERS" */}
-         <div className="absolute bottom-0 left-0 w-full text-center z-0 pointer-events-none select-none overflow-hidden">
-            <span className="text-[13.5vw] md:text-[12vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block translate-y-0">
+         <div className="absolute bottom-0 left-0 w-full text-center z-0 pointer-events-none select-none overflow-visible">
+            <span className="text-[13.5vw] md:text-[12vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block -translate-y-[15%] md:-translate-y-[10%]">
                SMASHERS
             </span>
          </div>
