@@ -277,7 +277,7 @@ const Home: React.FC = () => {
     return () => {
       cancelled = true;
       window.removeEventListener('scroll', handleScroll);
-    } () => window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const formatTime = (isoString: string) => {
