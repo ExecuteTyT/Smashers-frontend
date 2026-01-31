@@ -1,9 +1,12 @@
 
 // Поддержка переменных окружения для Vite (префикс VITE_)
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD 
-    ? 'https://apismash.braidx.tech/api'  // Production по умолчанию
-    : 'http://localhost:3000/api');      // Development по умолчанию
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://apismash.braidx.tech/api';
+
+// Логирование для отладки (только в development)
+if (import.meta.env.DEV) {
+  console.log('[API] API_BASE_URL:', API_BASE_URL);
+  console.log('[API] VITE_API_URL from env:', import.meta.env.VITE_API_URL);
+}
 
 export interface ApiError {
   code: string;
@@ -44,9 +47,28 @@ class ApiClient {
       },
     };
 
+    // Логирование для отладки (только в development)
+    if (import.meta.env.DEV) {
+      console.log('[API] Request:', url, options);
+    }
+
     try {
       const response = await fetch(url, config);
+      
+      // Проверка на ошибки сети или пустой ответ
+      if (!response.ok && response.status === 0) {
+        throw { 
+          code: 'NETWORK_ERROR', 
+          message: 'Network error: Unable to connect to server. Check CORS and API URL.' 
+        };
+      }
+
       const data = await response.json();
+
+      // Логирование для отладки (только в development)
+      if (import.meta.env.DEV) {
+        console.log('[API] Response:', { status: response.status, data });
+      }
 
       // Проверка поля success (даже при статусе 200)
       if (data.success === false) {
@@ -66,6 +88,11 @@ class ApiClient {
       // Возвращаем весь объект ответа (включая success и data)
       return data as T;
     } catch (error) {
+      // Логирование ошибок для отладки
+      if (import.meta.env.DEV) {
+        console.error('[API] Error:', error);
+      }
+      
       // Если это уже наш ApiError, пробрасываем дальше
       if (error && typeof error === 'object' && 'code' in error) {
         throw error;
