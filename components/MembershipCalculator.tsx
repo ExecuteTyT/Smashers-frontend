@@ -311,9 +311,32 @@ const MembershipCalculator: React.FC = () => {
 
                              <button 
                                 onClick={() => openBooking('membership', currentItem.id, currentItem.name)}
-                                className="w-full bg-white text-slate-900 py-4 md:py-5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-[0.1em] sm:tracking-[0.2em] hover:bg-emerald-400 transition-colors shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] active:scale-95"
+                                className="group relative w-full overflow-hidden rounded-xl font-black text-xs sm:text-sm uppercase tracking-[0.1em] sm:tracking-[0.15em] py-4 md:py-5 px-6 transition-all duration-300 active:scale-[0.98]"
+                                style={{
+                                    background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
+                                    backgroundSize: '200% 200%',
+                                    animation: 'button-shimmer 3s linear infinite',
+                                }}
                              >
-                                 ОФОРМИТЬ
+                                 {/* Shine effect overlay */}
+                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                 
+                                 {/* Glow effect */}
+                                 <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse-glow"
+                                      style={{
+                                          boxShadow: '0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1)'
+                                      }}
+                                 ></div>
+                                 
+                                 {/* Button content */}
+                                 <span className="relative z-10 flex items-center justify-center gap-2 text-white">
+                                     <i className="fa-solid fa-bolt text-sm sm:text-base"></i>
+                                     <span>ЗАБРОНИРОВАТЬ СЕЙЧАС</span>
+                                     <i className="fa-solid fa-arrow-right text-sm sm:text-base group-hover:translate-x-1 transition-transform duration-300"></i>
+                                 </span>
+                                 
+                                 {/* Ripple effect on click */}
+                                 <div className="absolute inset-0 rounded-xl opacity-0 group-active:opacity-100 group-active:bg-white/20 transition-opacity duration-150"></div>
                              </button>
                              
                              <p className="text-center text-gray-500 text-[11px] sm:text-[10px] uppercase font-bold tracking-wide sm:tracking-widest mt-4 leading-relaxed px-2">
