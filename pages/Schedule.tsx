@@ -110,21 +110,26 @@ const Schedule: React.FC = () => {
         console.log('[Schedule] Locations response:', locationsRes);
         
         // 1. Sessions
-        if (sessionsRes && sessionsRes.success !== false && sessionsRes.data && Array.isArray(sessionsRes.data)) {
-           console.log('[Schedule] Setting sessions:', sessionsRes.data.length, 'items');
-           // Фильтруем только будущие тренировки и сортируем по времени
+        if (sessionsRes && sessionsRes.data && Array.isArray(sessionsRes.data)) {
+           console.log('[Schedule] Received sessions:', sessionsRes.data.length, 'items');
+           
+           // Фильтруем тренировки по выбранной дате (на случай если API вернул все тренировки)
            const filteredSessions = sessionsRes.data
              .filter(session => {
+               if (!session.datetime) return false;
                const sessionDate = new Date(session.datetime);
-               const selected = new Date(selectedDate + 'T00:00:00');
+               const selected = new Date(formattedDate + 'T00:00:00');
                const nextDay = new Date(selected);
                nextDay.setDate(nextDay.getDate() + 1);
+               
                // Проверяем, что тренировка в выбранный день
-               return sessionDate >= selected && sessionDate < nextDay;
+               const isInSelectedDay = sessionDate >= selected && sessionDate < nextDay;
+               return isInSelectedDay;
              })
              .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
            
-           setSessions(filteredSessions.length > 0 ? filteredSessions : []);
+           console.log('[Schedule] Filtered sessions for date', formattedDate, ':', filteredSessions.length, 'items');
+           setSessions(filteredSessions);
         } else {
            console.log('[Schedule] No sessions data, using fallback. Response:', sessionsRes);
            const today = new Date().toISOString().split('T')[0];
