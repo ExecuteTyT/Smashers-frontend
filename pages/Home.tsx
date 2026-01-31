@@ -215,6 +215,8 @@ const Home: React.FC = () => {
   const [singleVisitPrice, setSingleVisitPrice] = useState<number>(1200);
 
   useEffect(() => {
+    let cancelled = false; // Защита от дублирования запросов (React StrictMode)
+    
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
@@ -231,6 +233,8 @@ const Home: React.FC = () => {
             date_from: new Date().toISOString().split('T')[0] // From today
         }).catch(() => null);
 
+        if (cancelled) return;
+
         if (sessionsRes && sessionsRes.data) {
            setUpcomingSessions(sessionsRes.data);
         } else {
@@ -240,6 +244,8 @@ const Home: React.FC = () => {
 
         // 2. Memberships (for pricing blocks)
         const memsRes = await apiClient.get<{ data: Membership[] }>('/memberships').catch(() => null);
+        if (cancelled) return;
+        
         if (memsRes && memsRes.data) {
            setMemberships(memsRes.data);
         } else {
@@ -248,6 +254,8 @@ const Home: React.FC = () => {
 
         // 3. Single Visit Price (ID 2)
         const singleVisit = await apiClient.get<{ data: Membership }>('/memberships/2').catch(() => null);
+        if (cancelled) return;
+        
         if (singleVisit && singleVisit.data) {
            setSingleVisitPrice(singleVisit.data.price);
         } else {
@@ -255,16 +263,21 @@ const Home: React.FC = () => {
         }
 
       } catch (err) {
-        // Silent catch for smooth fallback
-        setUpcomingSessions(MOCK_SESSIONS);
-        setMemberships(MOCK_MEMBERSHIPS);
-        setSingleVisitPrice(1200);
+        if (!cancelled) {
+          // Silent catch for smooth fallback
+          setUpcomingSessions(MOCK_SESSIONS);
+          setMemberships(MOCK_MEMBERSHIPS);
+          setSingleVisitPrice(1200);
+        }
       }
     };
 
     fetchData();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('scroll', handleScroll);
+    } () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const formatTime = (isoString: string) => {

@@ -31,6 +31,8 @@ const MembershipCalculator: React.FC = () => {
 
   // 1. Fetch Data
   useEffect(() => {
+    let cancelled = false; // Защита от дублирования запросов (React StrictMode)
+    
     const init = async () => {
       setLoading(true);
       try {
@@ -41,23 +43,45 @@ const MembershipCalculator: React.FC = () => {
           }))
         ]);
 
+        // Проверка на отмену (защита от дублирования)
+        if (cancelled) return;
+
         let items = allRes.data || [];
         const singleItem = singleRes.data;
+
+        // Фильтруем подарочные сертификаты (исключаем тип "Подарочный серт")
+        items = items.filter(item => {
+          const type = item.type?.toLowerCase() || '';
+          // Исключаем подарочные сертификаты
+          return !type.includes('подарочн') && !type.includes('серт');
+        });
 
         // Ensure single item is in the list if not present (it acts as base for 1 session)
         if (singleItem && singleItem.id && !items.find(m => m.id === singleItem.id)) {
             items.push(singleItem);
         }
 
-        setRawMemberships(items);
-        if (singleItem && singleItem.price) setBasePrice(singleItem.price);
+        if (!cancelled) {
+          setRawMemberships(items);
+          if (singleItem && singleItem.price) setBasePrice(singleItem.price);
+        }
       } catch (e) {
-        console.error("Calculator data fetch error", e);
+        if (!cancelled) {
+          console.error("Calculator data fetch error", e);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
+    
     init();
+    
+    // Cleanup функция для отмены запроса при размонтировании
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // 2. Transform Data
@@ -71,6 +95,12 @@ const MembershipCalculator: React.FC = () => {
     rawMemberships.forEach(item => {
       // Safety check to prevent crashing if data is malformed
       if (!item || !item.name) return;
+
+      // Дополнительная фильтрация: исключаем подарочные сертификаты по типу
+      const type = item.type?.toLowerCase() || '';
+      if (type.includes('подарочн') || type.includes('серт')) {
+        return; // Пропускаем подарочные сертификаты
+      }
 
       const name = item.name.toLowerCase();
       let cat: CategoryKey = 'adults';

@@ -81,6 +81,8 @@ const Schedule: React.FC = () => {
   const dateStrip = generateDates();
 
   useEffect(() => {
+    let cancelled = false; // Защита от дублирования запросов
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -89,6 +91,9 @@ const Schedule: React.FC = () => {
            apiClient.get<{ data: Session[] }>('/sessions', { date: selectedDate }).catch(() => null),
            apiClient.get<{ data: Location[] }>('/locations').catch(() => null),
         ]);
+        
+        // Проверка на отмену (защита от дублирования)
+        if (cancelled) return;
         
         // 1. Sessions
         if (sessionsRes && sessionsRes.data) {
@@ -110,14 +115,24 @@ const Schedule: React.FC = () => {
         }
 
       } catch (err) {
-        console.error("Failed to fetch schedule data, using fallback", err);
-        setSessions(MOCK_SESSIONS);
-        setLocations(MOCK_LOCATIONS);
+        if (!cancelled) {
+          console.error("Failed to fetch schedule data, using fallback", err);
+          setSessions(MOCK_SESSIONS);
+          setLocations(MOCK_LOCATIONS);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
+    
     fetchData();
+    
+    // Cleanup функция для отмены запроса при изменении зависимостей
+    return () => {
+      cancelled = true;
+    };
   }, [selectedDate]);
 
   // --- HELPERS ---
