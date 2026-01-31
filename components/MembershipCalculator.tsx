@@ -278,19 +278,19 @@ const MembershipCalculator: React.FC = () => {
                          <div className="absolute top-0 -left-[100%] w-[200%] h-full bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 group-hover:animate-shine pointer-events-none"></div>
 
                          <div className="relative z-10">
-                             <div className="flex justify-between items-start mb-6">
-                                 <div>
+                             <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6 gap-4">
+                                 <div className="flex-1">
                                      <span className="inline-block px-3 py-1 rounded bg-white/10 text-gray-300 text-[10px] font-black uppercase tracking-widest mb-2 border border-white/5">
                                          {activeLocation}
                                      </span>
-                                     <h3 className="font-display font-black text-2xl md:text-3xl text-white uppercase leading-tight max-w-[80%]">
+                                     <h3 className="font-display font-black text-2xl md:text-3xl text-white uppercase leading-tight">
                                          {currentItem.name}
                                      </h3>
                                  </div>
                                  {savings > 0 && (
-                                     <div className="flex flex-col items-end animate-pulse">
-                                         <span className="text-emerald-400 font-black text-xs uppercase tracking-widest">ВЫГОДА</span>
-                                         <span className="text-white font-display font-bold text-lg">+{savings}₽</span>
+                                     <div className="flex flex-col items-start md:items-end animate-pulse bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 md:px-3 md:py-2">
+                                         <span className="text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-widest">ВЫГОДА</span>
+                                         <span className="text-emerald-400 font-display font-bold text-xl md:text-lg">+{savings.toLocaleString('ru-RU')}₽</span>
                                      </div>
                                  )}
                              </div>
