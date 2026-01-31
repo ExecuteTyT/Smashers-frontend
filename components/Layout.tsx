@@ -135,7 +135,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
          
          {/* Background Text "SMASHERS" */}
          <div className="absolute bottom-0 left-0 w-full text-center z-0 pointer-events-none select-none overflow-hidden">
-            <span className="text-[13.5vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block translate-y-[20%]">
+            <span className="text-[13.5vw] md:text-[12vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block translate-y-[5%] md:translate-y-[8%]">
                SMASHERS
             </span>
          </div>
