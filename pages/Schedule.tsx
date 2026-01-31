@@ -86,19 +86,47 @@ const Schedule: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Форматируем дату в правильном формате (YYYY-MM-DD)
+        const formattedDate = selectedDate.split('T')[0]; // Убеждаемся что формат правильный
+        
+        console.log('[Schedule] Fetching sessions for date:', formattedDate);
+        
         // Fetch Sessions, Locations
         const [sessionsRes, locationsRes] = await Promise.all([
-           apiClient.get<{ data: Session[] }>('/sessions', { date: selectedDate }).catch(() => null),
-           apiClient.get<{ data: Location[] }>('/locations').catch(() => null),
+           apiClient.get<{ success: boolean; data: Session[] }>('/sessions', { date: formattedDate }).catch((err) => {
+             console.error('[Schedule] Error fetching sessions:', err);
+             return null;
+           }),
+           apiClient.get<{ success: boolean; data: Location[] }>('/locations').catch((err) => {
+             console.error('[Schedule] Error fetching locations:', err);
+             return null;
+           }),
         ]);
         
         // Проверка на отмену (защита от дублирования)
         if (cancelled) return;
         
+        console.log('[Schedule] Sessions response:', sessionsRes);
+        console.log('[Schedule] Locations response:', locationsRes);
+        
         // 1. Sessions
-        if (sessionsRes && sessionsRes.data) {
-           setSessions(sessionsRes.data);
+        if (sessionsRes && sessionsRes.success !== false && sessionsRes.data && Array.isArray(sessionsRes.data)) {
+           console.log('[Schedule] Setting sessions:', sessionsRes.data.length, 'items');
+           // Фильтруем только будущие тренировки и сортируем по времени
+           const filteredSessions = sessionsRes.data
+             .filter(session => {
+               const sessionDate = new Date(session.datetime);
+               const selected = new Date(selectedDate + 'T00:00:00');
+               const nextDay = new Date(selected);
+               nextDay.setDate(nextDay.getDate() + 1);
+               // Проверяем, что тренировка в выбранный день
+               return sessionDate >= selected && sessionDate < nextDay;
+             })
+             .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+           
+           setSessions(filteredSessions.length > 0 ? filteredSessions : []);
         } else {
+           console.log('[Schedule] No sessions data, using fallback. Response:', sessionsRes);
            const today = new Date().toISOString().split('T')[0];
            if (selectedDate === today) {
                setSessions(MOCK_SESSIONS);
@@ -108,15 +136,17 @@ const Schedule: React.FC = () => {
         }
 
         // 2. Locations
-        if (locationsRes && locationsRes.data) {
+        if (locationsRes && locationsRes.success && locationsRes.data && Array.isArray(locationsRes.data)) {
+            console.log('[Schedule] Setting locations:', locationsRes.data.length, 'items');
             setLocations(locationsRes.data);
         } else {
+            console.log('[Schedule] No locations data, using fallback');
             setLocations(MOCK_LOCATIONS);
         }
 
       } catch (err) {
         if (!cancelled) {
-          console.error("Failed to fetch schedule data, using fallback", err);
+          console.error("[Schedule] Failed to fetch schedule data, using fallback", err);
           setSessions(MOCK_SESSIONS);
           setLocations(MOCK_LOCATIONS);
         }
