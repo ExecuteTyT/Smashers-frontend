@@ -1,0 +1,7 @@
+{
+  "name": "Smashers Badminton Club",
+  "description": "Элитный бадминтонный клуб Smashers. Профессиональные корты, тренеры и мощное комьюнити.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
