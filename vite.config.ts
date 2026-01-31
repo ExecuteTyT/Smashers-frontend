@@ -24,13 +24,7 @@ export default defineConfig(({ mode }) => {
       build: {
         outDir: 'dist',
         assetsDir: 'assets',
-        sourcemap: false,
-        rollupOptions: {
-          input: path.resolve(__dirname, 'index.html'),
-          output: {
-            manualChunks: undefined
-          }
-        }
+        sourcemap: false
       }
     };
 });
