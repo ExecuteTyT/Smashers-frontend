@@ -31,15 +31,22 @@ const FormatCard: React.FC<{
       )}
 
       {/* Image Section - 50-55% of card height with gradient overlay */}
-      <div className="relative h-48 md:h-56 w-full overflow-hidden flex-shrink-0 bg-gray-200">
+      <div className="relative h-48 md:h-56 w-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300">
         <img 
-          src={img} 
+          src={img.startsWith('http') ? img : encodeURI(img)} 
           alt={title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
           onError={(e) => {
-            console.error('Image failed to load:', img);
-            (e.target as HTMLImageElement).style.display = 'none';
+            console.error('Image failed to load:', img, 'Encoded:', encodeURI(img));
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            // Show placeholder gradient
+            const parent = target.parentElement;
+            if (parent) {
+              parent.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
           }}
+          loading="lazy"
         />
         {/* Dark gradient overlay for text visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -472,7 +479,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для начинающих"
             desc="Фундамент техники. Хват, перемещения и первый точный удар."
-            img="/Для начинающих.png"
+            img={encodeURI("/Для начинающих.png")}
             price="800₽"
             schedule="ВТ, ЧТ 19:00"
             gridSpan="md:col-span-3"
@@ -480,7 +487,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для продолжающих"
             desc="Тактика, выносливость и мощные смэши. Уровень PRO."
-            img="/Для продолжающих.png"
+            img={encodeURI("/Для продолжающих.png")}
             price="900₽"
             schedule="ПН, СР, ПТ 19:00"
             gridSpan="md:col-span-3"
@@ -489,7 +496,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Игровая тренировка"
             desc="Спарринги, эмоции и реальная игровая практика без пауз."
-            img="/Игровая.png"
+            img={encodeURI("/Игровая.png")}
             price="600₽"
             schedule="Каждый день"
             gridSpan="md:col-span-3"
@@ -497,7 +504,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Американка"
             desc="Турнирный формат 'на вылет'. Чистый адреналин."
-            img="/Американка2.png"
+            img={encodeURI("/Американка2.png")}
             price="1000₽"
             schedule="СБ 14:00"
             gridSpan="md:col-span-3"
@@ -505,7 +512,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Персональная"
             desc="1 на 1 с тренером. Максимальный фокус на твоих ошибках."
-            img="/Персональная.png"
+            img={encodeURI("/Персональная.png")}
             price="2000₽"
             schedule="По записи"
             gridSpan="md:col-span-3"
@@ -513,7 +520,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Сплит-тренировка"
             desc="Тренировка для двоих. Эффективно и выгодно."
-            img="/Сплит-тренировка.png"
+            img={encodeURI("/Сплит-тренировка.png")}
             price="1400₽"
             schedule="По записи"
             gridSpan="md:col-span-3"
@@ -521,7 +528,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Детская Академия"
             desc="Спорт, дисциплина и веселье для будущих чемпионов (6-14 лет)."
-            img="/Детская академия.png"
+            img={encodeURI("/Детская академия.png")}
             price="600₽"
             schedule="ПН, СР, ПТ 16:00"
             gridSpan="md:col-span-3"
