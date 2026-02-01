@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import MagneticButton from '../components/MagneticButton';
 import { useBooking } from '../context/BookingContext';
 import { apiClient, Session, Membership } from '../config/api';
+import { createTgLink } from '../constants';
 
 // --- COMPONENTS ---
 
@@ -13,79 +14,74 @@ const FormatCard: React.FC<{
   img: string; 
   price: string; 
   schedule: string;
-  membershipId?: number; // Optional ID to trigger booking
+  membershipId?: number; // Optional ID (not used anymore, kept for compatibility)
   isComingSoon?: boolean;
   gridSpan?: string;
   isHit?: boolean;
 }> = ({ title, desc, img, price, schedule, membershipId, isComingSoon, gridSpan = "md:col-span-3", isHit }) => {
-  const { openBooking } = useBooking();
-
-  const handleBook = (e: React.MouseEvent) => {
-    if (isComingSoon) return;
-    if (membershipId) {
-       e.preventDefault();
-       openBooking('membership', membershipId, title);
-    } else {
-        // Fallback to general if no specific ID
-       e.preventDefault();
-       openBooking('general', undefined, title);
-    }
-  };
 
   return (
-    <div className={`relative flex flex-col flex-shrink-0 ${gridSpan} bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 snap-center w-[85vw] md:w-auto ${isComingSoon ? 'grayscale opacity-75' : 'group'}`}>
+    <div className={`relative flex flex-col flex-shrink-0 ${gridSpan} bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 snap-center w-[85vw] md:w-auto md:min-w-[280px] h-auto ${isComingSoon ? 'grayscale opacity-75' : 'group'}`}>
       
       {/* Hit Badge */}
       {isHit && (
-        <div className="absolute top-4 left-4 z-20 bg-brand-lime text-brand-carbon px-3 py-1 rounded-md font-display font-black text-[10px] uppercase tracking-widest shadow-glow-lime animate-pulse">
+        <div className="absolute top-4 left-4 z-20 bg-emerald-500 text-white px-3 py-1 rounded-md font-display font-black text-[10px] uppercase tracking-widest shadow-lg">
           ХИТ 🔥
         </div>
       )}
 
-      {/* Price Badge */}
-      <div className={`absolute top-4 right-4 z-20 px-4 py-2 rounded-xl font-black shadow-xl backdrop-blur-md border border-white/20 text-sm md:text-base ${isComingSoon ? 'bg-gray-400/90 text-white' : 'bg-brand-carbon/90 text-white'}`}>
-        {price}
-      </div>
-
-      {/* Image Section */}
-      <div className="relative h-48 md:h-56 w-full overflow-hidden">
+      {/* Image Section - 50-55% of card height with gradient overlay */}
+      <div className="relative h-48 md:h-56 w-full overflow-hidden flex-shrink-0">
         <img 
           src={img} 
           alt={title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40"></div>
+        {/* Dark gradient overlay for text visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+        
+        {/* Title overlaid on image */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
+          <h3 className="font-display font-black text-lg md:text-xl text-white uppercase leading-tight tracking-tight drop-shadow-lg">
+            {title}
+          </h3>
+        </div>
       </div>
 
-      {/* Content Section */}
-      <div className="flex flex-col flex-grow p-6 pt-2">
-        <h3 className="font-display font-black text-xl md:text-2xl text-brand-carbon uppercase leading-none mb-3 tracking-tight group-hover:text-emerald-600 transition-colors">
-          {title}
-        </h3>
-        <p className="text-gray-500 text-xs md:text-sm font-medium mb-6 leading-relaxed border-l-2 border-gray-200 pl-3">
+      {/* Content Section - Compact, no excessive whitespace */}
+      <div className="flex flex-col justify-between flex-1 p-6 min-h-0">
+        <p className="text-gray-500 text-xs md:text-sm font-medium mb-4 leading-relaxed border-l-2 border-gray-200 pl-3">
           {desc}
         </p>
         
-        <div className="mt-auto">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="bg-brand-ghost text-brand-carbon/70 px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 w-full">
-               <i className="fa-regular fa-clock text-emerald-600"></i>
+        <div className="flex flex-col gap-4">
+          {/* Time Slot - Neutral Gray */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 w-fit">
+               <i className="fa-regular fa-clock text-gray-400"></i>
                {schedule}
             </div>
           </div>
 
-          <button 
-            onClick={handleBook}
-            disabled={isComingSoon}
-            className={`w-full py-4 rounded-xl font-black text-xs md:text-sm uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
-              isComingSoon 
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-              : 'bg-brand-carbon text-white shadow-lg hover:bg-brand-blue active:scale-95'
-            }`}
-          >
-            {isComingSoon ? 'СКОРО' : 'ЗАПИСАТЬСЯ'} 
-            {!isComingSoon && <i className="fa-solid fa-arrow-right -rotate-45 group-hover:rotate-0 transition-transform text-brand-lime"></i>}
-          </button>
+          {/* Action Button - Black to Emerald, Links to Schedule */}
+          {isComingSoon ? (
+            <button 
+              disabled
+              className="w-full py-3 md:py-4 rounded-xl bg-gray-100 text-gray-400 font-black text-xs md:text-sm uppercase tracking-[0.2em] cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              СКОРО
+            </button>
+          ) : (
+            <a 
+              href={createTgLink(`Здравствуйте! Хочу записаться на тренировку: ${title}.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full block text-center py-3 md:py-4 bg-black text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] rounded-xl transition-colors duration-300 hover:bg-emerald-500 hover:text-white flex items-center justify-center gap-2"
+            >
+              ЗАПИСАТЬСЯ
+              <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -138,19 +134,19 @@ const WHY_US_CARDS = [
     title: "ПРОФЕССИОНАЛЬНЫЕ КОРТЫ",
     shortTitle: "КОРТЫ",
     desc: "4 сертифицированных корта с амортизирующим покрытием. Твои колени скажут спасибо.",
-    img: "https://images.unsplash.com/photo-1613912111729-560bb507ef44?auto=format&fit=crop&q=80&w=800"
+    img: "/Gemini_Generated_Image_iacv1piacv1piacv.png"
   },
   {
     title: "ОБОРУДОВАНИЕ YONEX",
     shortTitle: "YONEX",
     desc: "Играйте профессиональными воланами и ракетками. Мы предоставляем топовый инвентарь бесплатно на каждую тренировку.",
-    img: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?q=80&w=800&auto=format&fit=crop"
+    img: "/Gemini_Generated_Image_l5hojql5hojql5ho.png"
   },
   {
     title: "МОЩНОЕ КОМЬЮНИТИ",
     shortTitle: "ЛЮДИ",
     desc: "Больше чем спорт. Турниры, вечеринки и новые друзья каждую неделю.",
-    img: "./community.jpg"
+    img: "/IMG_9758(2).jpg"
   }
 ];
 
@@ -171,7 +167,8 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Михаил", 
     name: "ГРУППА ДЛЯ НОВИЧКОВ", 
     maxSpots: 12, 
-    availableSpots: 8, 
+    availableSpots: 8,
+    price: 1200,
     status: "active" 
   },
   { 
@@ -182,7 +179,8 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Алина", 
     name: "PRO LEAGUE", 
     maxSpots: 8, 
-    availableSpots: 2, 
+    availableSpots: 2,
+    price: 1500,
     status: "active" 
   },
   { 
@@ -193,7 +191,8 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Олег", 
     name: "ИГРОВАЯ ТРЕНИРОВКА", 
     maxSpots: 16, 
-    availableSpots: 12, 
+    availableSpots: 12,
+    price: 1200,
     status: "active" 
   }
 ];
@@ -226,11 +225,12 @@ const Home: React.FC = () => {
     // FETCH DATA
     const fetchData = async () => {
       try {
-        // 1. Sessions
+        // 1. Sessions - получаем ближайшие доступные тренировки
         const sessionsRes = await apiClient.get<{ data: Session[] }>('/sessions', { 
             limit: 3, 
-            available_only: true,
-            date_from: new Date().toISOString().split('T')[0] // From today
+            available_only: true, // Только с доступными местами
+            date_from: new Date().toISOString().split('T')[0], // С сегодняшнего дня
+            // include_past: false - по умолчанию только будущие
         }).catch(() => null);
 
         if (cancelled) return;
@@ -280,13 +280,51 @@ const Home: React.FC = () => {
     };
   }, []);
 
+  // Remove emojis from text
+  const removeEmojis = (text: string): string => {
+    if (!text) return '';
+    return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+  };
+
+  // Format time without timezone offset - display as received
   const formatTime = (isoString: string) => {
     try {
         const date = new Date(isoString);
-        if (isNaN(date.getTime())) return "18:00"; // fallback
-        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        if (isNaN(date.getTime())) return "18:00";
+        // Use UTC methods to preserve the "face value" time
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
     } catch {
         return "18:00";
+    }
+  };
+
+  // Smart date label: СЕГОДНЯ, ЗАВТРА, or date
+  const getSmartDateLabel = (isoString: string): string => {
+    try {
+        const sessionDate = new Date(isoString);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const sessionDateOnly = new Date(sessionDate);
+        sessionDateOnly.setHours(0, 0, 0, 0);
+        
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        if (sessionDateOnly.getTime() === today.getTime()) {
+            return "СЕГОДНЯ";
+        } else if (sessionDateOnly.getTime() === tomorrow.getTime()) {
+            return "ЗАВТРА";
+        } else {
+            // Format as "3 ФЕВ"
+            const day = sessionDate.getUTCDate();
+            const month = sessionDate.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase().replace('.', '');
+            return `${day} ${month}`;
+        }
+    } catch {
+        return "";
     }
   };
 
@@ -299,7 +337,7 @@ const Home: React.FC = () => {
     <div className="w-full bg-brand-ghost overflow-x-hidden">
       
       {/* 1. HERO BLOCK (RUSSIAN RICH VISUAL) */}
-      <section className="relative min-h-screen w-full overflow-hidden flex items-center -mt-20 pt-20">
+      <section id="hero" className="relative min-h-screen w-full overflow-hidden flex items-center -mt-20 pt-20">
         
         {/* Background Image Layer */}
         <div 
@@ -430,7 +468,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для начинающих"
             desc="Фундамент техники. Хват, перемещения и первый точный удар."
-            img="https://images.unsplash.com/photo-1626224580193-3d7065999827?auto=format&fit=crop&q=80&w=800"
+            img="/Для начинающих.png"
             price="800₽"
             schedule="ВТ, ЧТ 19:00"
             gridSpan="md:col-span-3"
@@ -438,7 +476,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для продолжающих"
             desc="Тактика, выносливость и мощные смэши. Уровень PRO."
-            img="https://images.unsplash.com/photo-1599586120429-48281b6f0ece?auto=format&fit=crop&q=80&w=800"
+            img="/Для продолжающих.png"
             price="900₽"
             schedule="ПН, СР, ПТ 19:00"
             gridSpan="md:col-span-3"
@@ -447,7 +485,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Игровая тренировка"
             desc="Спарринги, эмоции и реальная игровая практика без пауз."
-            img="https://images.unsplash.com/photo-1613912111729-560bb507ef44?auto=format&fit=crop&q=80&w=800"
+            img="/Игровая.png"
             price="600₽"
             schedule="Каждый день"
             gridSpan="md:col-span-3"
@@ -455,7 +493,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Американка"
             desc="Турнирный формат 'на вылет'. Чистый адреналин."
-            img="https://images.unsplash.com/photo-1627845348821-2e97910903cb?auto=format&fit=crop&q=80&w=800"
+            img="/Американка2.png"
             price="1000₽"
             schedule="СБ 14:00"
             gridSpan="md:col-span-3"
@@ -463,25 +501,25 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Персональная"
             desc="1 на 1 с тренером. Максимальный фокус на твоих ошибках."
-            img="https://images.unsplash.com/photo-1554068865-2484cd381755?auto=format&fit=crop&q=80&w=800"
+            img="/Персональная.png"
             price="2000₽"
+            schedule="По записи"
+            gridSpan="md:col-span-3"
+          />
+          <FormatCard 
+            title="Сплит-тренировка"
+            desc="Тренировка для двоих. Эффективно и выгодно."
+            img="/Сплит-тренировка.png"
+            price="1400₽"
             schedule="По записи"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
             title="Детская Академия"
             desc="Спорт, дисциплина и веселье для будущих чемпионов (6-14 лет)."
-            img="https://images.unsplash.com/photo-1551855630-c322b7244926?auto=format&fit=crop&q=80&w=800"
+            img="/Детская академия.png"
             price="600₽"
             schedule="ПН, СР, ПТ 16:00"
-            gridSpan="md:col-span-3"
-          />
-          <FormatCard 
-            title="Сплит-тренировка"
-            desc="Тренировка для двоих. Эффективно и выгодно."
-            img="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800"
-            price="1400₽"
-            schedule="По записи"
             gridSpan="md:col-span-3"
           />
         </div>
@@ -489,9 +527,9 @@ const Home: React.FC = () => {
 
       {/* NEW BLOCK 1: UPCOMING SESSIONS (FLIGHT BOARD) */}
       <section className="py-12 px-4 md:px-12 max-w-[1440px] mx-auto -mt-10 relative z-20 mb-20">
-        <div className="bg-brand-carbon rounded-[2rem] p-6 md:p-12 text-white shadow-2xl relative overflow-hidden group">
+        <div className="bg-brand-carbon rounded-[2rem] p-6 md:p-12 text-white shadow-2xl relative overflow-hidden">
             {/* Background Effects */}
-            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-emerald-600/10 rounded-full blur-[80px] group-hover:bg-emerald-600/20 transition-colors"></div>
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-emerald-600/10 rounded-full blur-[80px] transition-colors"></div>
             <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-brand-blue/10 rounded-full blur-[60px]"></div>
             
             {/* Header */}
@@ -509,49 +547,68 @@ const Home: React.FC = () => {
             </div>
 
             {/* List */}
-            <div className="space-y-4 relative z-10">
+            <div className="flex flex-col gap-4 relative z-10">
                 {upcomingSessions.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                         <p>Загрузка расписания...</p>
                     </div>
                 ) : (
-                    upcomingSessions.map((session, i) => (
-                        <div key={i} className="flex flex-col md:flex-row items-center justify-between bg-white/5 rounded-2xl p-5 md:p-6 border border-white/5 hover:border-emerald-500/30 transition-all hover:bg-white/10 group/row backdrop-blur-sm">
-                            <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto mb-4 md:mb-0">
-                                <span className="font-display font-black text-3xl md:text-4xl text-white w-24 tracking-tighter">
-                                    {formatTime(session.datetime)}
-                                </span>
-                                <div className="h-10 w-px bg-white/10 hidden md:block"></div>
-                                <div className="flex items-center gap-3 md:gap-4 flex-grow">
-                                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(session.trainers)}&background=random`} alt="Trainer" className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white/10 grayscale group-hover/row:grayscale-0 transition-all object-cover" />
-                                    <div>
-                                        <p className="font-bold text-sm md:text-base uppercase text-white tracking-wide leading-tight">{session.name}</p>
-                                        <div className="flex items-center gap-2 md:hidden mt-1">
-                                            <span className={`w-1.5 h-1.5 rounded-full ${getStatusColor(session.availableSpots) === 'green' ? 'bg-brand-lime' : 'bg-yellow-400'}`}></span>
-                                            <span className="text-[9px] text-white/50 uppercase tracking-widest">
-                                                {session.availableSpots > 0 ? `${session.availableSpots} СВОБОДНО` : 'МЕСТ НЕТ'}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
-                                <div className="hidden md:flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${getStatusColor(session.availableSpots) === 'green' ? 'bg-brand-lime' : 'bg-yellow-400'} shadow-[0_0_10px_currentColor]`}></span>
-                                    <span className="text-[10px] text-white/50 uppercase tracking-widest">
-                                        {session.availableSpots > 0 ? `${session.availableSpots} СВОБОДНО` : 'МЕСТ НЕТ'}
+                    upcomingSessions.map((session, i) => {
+                        const cleanName = removeEmojis(session.name);
+                        const cleanLocation = session.location?.name ? removeEmojis(session.location.name) : '';
+                        const smartDateLabel = getSmartDateLabel(session.datetime);
+                        const time = formatTime(session.datetime);
+                        const spotsText = session.availableSpots > 0 ? `${session.availableSpots} мест` : 'Мест нет';
+                        
+                        return (
+                            <div
+                                key={i}
+                                className="group relative bg-[#18181b] border border-white/5 rounded-3xl p-5 flex flex-col gap-4 overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:border-emerald-500/30"
+                            >
+                                {/* Header Row: Time & Smart Date Badge */}
+                                <div className="flex justify-between items-start">
+                                    <span className="text-4xl md:text-5xl font-display font-black text-white leading-none tracking-tight">
+                                        {time}
+                                    </span>
+                                    <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                        {smartDateLabel}
                                     </span>
                                 </div>
-                                <button 
-                                    onClick={() => openBooking('session', session.id, `${session.name} ${formatTime(session.datetime)}`)}
-                                    className="w-full md:w-auto px-6 py-3 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-brand-lime hover:text-brand-carbon hover:border-brand-lime transition-all active:scale-95 text-white"
+
+                                {/* Info Block: Title & Location */}
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="text-white font-bold uppercase text-lg truncate">
+                                        {cleanName}
+                                    </h3>
+                                    
+                                    <div className="flex items-center gap-1.5 text-gray-500">
+                                        <i className="fa-solid fa-location-dot w-4 h-4 text-gray-500"></i>
+                                        <span className="text-sm text-gray-400 font-medium truncate">
+                                            {cleanLocation}
+                                        </span>
+                                        <span className="w-1 h-1 rounded-full bg-gray-600 mx-1"></span>
+                                        <span className={`text-xs font-bold ${
+                                            session.availableSpots > 0 
+                                                ? 'text-emerald-500' 
+                                                : 'text-red-500'
+                                        }`}>
+                                            {spotsText}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Footer: Wide Button */}
+                                <a
+                                    href={createTgLink(`Здравствуйте! Хочу записаться на тренировку: ${cleanName} ${smartDateLabel} в ${time}.`)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full mt-2 py-3.5 rounded-xl bg-white/5 text-white font-bold uppercase text-sm tracking-wider transition-colors duration-300 group-hover:bg-emerald-500 flex items-center justify-center text-center"
                                 >
                                     ЗАПИСАТЬСЯ
-                                </button>
+                                </a>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
             
@@ -617,10 +674,10 @@ const Home: React.FC = () => {
                <h3 className="font-display font-black text-2xl text-brand-carbon uppercase mb-2">РАЗОВЫЕ</h3>
                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest mb-6">ДЛЯ СТАРТА</p>
                <div className="text-3xl md:text-4xl font-display font-black text-brand-carbon mb-8">
-                   {singleVisitPrice}₽<span className="text-sm text-gray-400 font-body font-medium">/ занятие</span>
+                   {singleVisitPrice}₽
                </div>
                <ul className="space-y-4 mb-8 flex-grow">
-                  {['Аренда ракетки', 'Доступ в сауну', 'Любое время'].map(item => (
+                  {['Топовый инвентарь бесплатно', 'Любое время'].map(item => (
                      <li key={item} className="flex items-center gap-3 text-sm font-bold text-gray-600">
                         <i className="fa-solid fa-check text-emerald-500"></i> {item}
                      </li>
@@ -630,7 +687,7 @@ const Home: React.FC = () => {
                   onClick={() => openBooking('membership', 2, 'Разовое посещение')}
                   className="w-full py-4 rounded-xl border-2 border-gray-100 font-black text-xs uppercase tracking-widest hover:bg-brand-carbon hover:text-white transition-all group-hover:border-brand-carbon"
                >
-                  ВЫБРАТЬ
+                  ЗАПИСАТЬСЯ
                </button>
             </div>
 
@@ -641,17 +698,16 @@ const Home: React.FC = () => {
                {/* Gloss effect */}
                <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-gradient-to-br from-white/10 via-transparent to-transparent rotate-45 pointer-events-none"></div>
 
-               <h3 className="relative z-10 font-display font-black text-2xl md:text-3xl uppercase mb-2 tracking-wide">MEMBERSHIP</h3>
-               <p className="relative z-10 text-sm text-emerald-200 font-bold uppercase tracking-widest mb-8">АБОНЕМЕНТЫ</p>
+               <h3 className="relative z-10 font-display font-black text-2xl md:text-3xl uppercase mb-2 tracking-wide">АБОНЕМЕНТЫ</h3>
+               <p className="relative z-10 text-sm text-emerald-200 font-bold uppercase tracking-widest mb-8">4 • 8 • 12 ТРЕНИРОВОК</p>
                
                <div className="relative z-10 mb-8">
-                  <span className="text-sm text-white/50 line-through font-bold block mb-1">ОТ 6000₽</span>
-                  {/* Assuming first real membership is monthly or similar */}
-                  <div className="text-4xl md:text-5xl font-display font-black text-white">от {memberships[0]?.price || 4800}₽</div>
+                  <div className="text-4xl md:text-5xl font-display font-black text-white mb-2">ВЫГОДА ДО 20%</div>
+                  <div className="text-sm text-white/70 font-medium">от {memberships[0]?.price || 4400}₽</div>
                </div>
                
                <ul className="relative z-10 space-y-4 mb-10 flex-grow">
-                  {['Выгода до 30%', 'Заморозка 14 дней', 'Гостевой визит', 'Приоритетная запись'].map(item => (
+                  {['Заморозка абонемента', 'Приоритетная запись', 'Инвентарь включен'].map(item => (
                      <li key={item} className="flex items-center gap-3 text-sm font-bold text-white/90">
                         <div className="w-5 h-5 rounded-full bg-brand-lime/20 flex items-center justify-center text-brand-lime text-xs shrink-0"><i className="fa-solid fa-check"></i></div> 
                         {item}
@@ -662,24 +718,19 @@ const Home: React.FC = () => {
                    onClick={() => openBooking('membership', memberships[0]?.id || 1, 'Абонемент')}
                    className="w-full py-5 rounded-xl bg-brand-lime text-brand-carbon font-black text-sm uppercase tracking-widest hover:bg-white transition-all shadow-glow-lime relative z-10 mt-auto"
                 >
-                   ОФОРМИТЬ
+                   ЗАПИСАТЬСЯ
                </button>
             </div>
 
             {/* Card 3: Personal */}
-            <div className="bg-brand-carbon rounded-[2rem] p-8 shadow-xl flex flex-col relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 min-h-[450px]">
-               <div className="absolute inset-0">
-                  <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=600" alt="Personal" className="w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
-               </div>
-               
+            <div className="bg-[#18181b] rounded-[2rem] p-8 shadow-xl flex flex-col relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300 min-h-[450px]">
                <div className="relative z-10">
                   <h3 className="font-display font-black text-2xl text-white uppercase mb-2">ПЕРСОНАЛЬНЫЕ</h3>
                   <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mb-6">С ТРЕНЕРОМ</p>
-                  <div className="text-3xl md:text-4xl font-display font-black text-white mb-8">2000₽<span className="text-sm text-gray-400 font-body font-medium">/ час</span></div>
+                  <div className="text-3xl md:text-4xl font-display font-black text-white mb-8">3000₽</div>
                   <ul className="space-y-4 mb-8">
                      {['Разбор техники', 'План тренировок', 'Спарринг'].map(item => (
-                        <li key={item} className="flex items-center gap-3 text-sm font-bold text-gray-300">
+                        <li key={item} className="flex items-center gap-3 text-sm font-bold text-white">
                            <i className="fa-solid fa-check text-emerald-500"></i> {item}
                         </li>
                      ))}
@@ -699,18 +750,10 @@ const Home: React.FC = () => {
       <section className="bg-slate-900 py-20 overflow-hidden relative border-t border-white/5">
           <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
           
-          <div className="container mx-auto px-6 mb-12 flex flex-col md:flex-row justify-between items-end relative z-10">
+          <div className="container mx-auto px-6 mb-12 relative z-10">
              <div>
                 <span className="text-emerald-500 font-bold uppercase tracking-widest text-xs mb-2 block">Больше, чем просто спорт</span>
                 <h2 className="font-display font-black text-3xl md:text-5xl text-white uppercase tracking-tight">ОТЗЫВЫ ИГРОКОВ</h2>
-             </div>
-             <div className="flex gap-4 mt-6 md:mt-0">
-                <button 
-                   onClick={() => openBooking('general', undefined, 'Отзыв', 'Хочу оставить отзыв')}
-                   className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest"
-                >
-                   <i className="fa-regular fa-message text-xl text-[#229ED9]"></i> ОСТАВИТЬ ОТЗЫВ
-                </button>
              </div>
           </div>
 
@@ -830,13 +873,15 @@ const Home: React.FC = () => {
                </div>
 
                {/* Button */}
-               <button 
-                  onClick={() => openBooking('general', undefined, 'Бесплатный билет', 'Хочу бесплатную первую тренировку')}
-                  className="w-full md:w-auto bg-white text-slate-900 font-display font-black text-lg md:text-xl py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all uppercase tracking-widest group relative overflow-hidden"
+               <a 
+                  href={createTgLink("Здравствуйте! Хочу забрать бесплатный билет на первую тренировку.")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full md:w-auto bg-white text-slate-900 font-display font-black text-lg md:text-xl py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all uppercase tracking-widest group relative overflow-hidden inline-block text-center"
                >
                  <span className="relative z-10 font-black">ЗАБРАТЬ БИЛЕТ</span>
                  <div className="absolute inset-0 bg-gray-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-               </button>
+               </a>
              </div>
           </div>
         </div>

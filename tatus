@@ -1,0 +1,5 @@
+[33mfeedea9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: lower SMASHERS watermark to touch footer bottom edge
+[33m8e5bcf8[m fix: align SMASHERS watermark exactly to footer bottom edge
+[33mc3704ae[m fix: adjust SMASHERS watermark position to align with footer bottom edge
+[33m6d4a288[m feat: redesign footer credit with Design & Development text and icons
+[33m06aa8d9[m fix: improve session filtering by date and response validation

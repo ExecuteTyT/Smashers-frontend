@@ -14,7 +14,7 @@ const Training: React.FC = () => {
         tabTitle: "Just Fun",
         title: "ИГРОВАЯ ТРЕНИРОВКА",
         desc: "Минимум теории, максимум игры. Идеально для разгрузки мозга и сжигания калорий.",
-        price: "600₽",
+        price: "1200₽",
         priceNote: "/ занятие",
         telegramLink: createTgLink("Здравствуйте! Хочу записаться на игровую тренировку. Есть ли места?")
     },
@@ -23,7 +23,7 @@ const Training: React.FC = () => {
         tabTitle: "Learn Basics",
         title: "ГРУППА START",
         desc: "Пошаговое обучение с нуля. Постановка хвата, ударов и перемещений за 8 занятий.",
-        price: "800₽",
+        price: "1200₽",
         priceNote: "/ занятие",
         telegramLink: createTgLink("Здравствуйте! Хочу записаться в группу START для новичков.")
     },
@@ -32,7 +32,7 @@ const Training: React.FC = () => {
         tabTitle: "Level Up",
         title: "ГРУППА PRO",
         desc: "Тактика, сложные комбинации и функциональная подготовка для участия в турнирах.",
-        price: "900₽",
+        price: "1200₽",
         priceNote: "/ занятие",
         telegramLink: createTgLink("Здравствуйте! Хочу записаться в группу PRO. У меня уже есть опыт.")
     }
@@ -176,8 +176,8 @@ const Training: React.FC = () => {
                         <i className="fa-solid fa-gift text-emerald-500"></i> Инвентарь бесплатно
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <img src="https://images.unsplash.com/photo-1626224583764-847890e0e99b?auto=format&fit=crop&q=80&w=600" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Novice 1" />
-                        <img src="https://images.unsplash.com/photo-1554068865-2484cd381755?auto=format&fit=crop&q=80&w=600" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Novice 2" />
+                        <img src="/Группа START.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" />
+                        <img src="/Группа старт2.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" />
                     </div>
                 </div>
 
@@ -207,12 +207,12 @@ const Training: React.FC = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-6 pt-6 border-t border-gray-100">
                         <div className="flex items-center justify-between sm:justify-start gap-8 w-full sm:w-auto">
                             <div>
-                                <span className="block text-xl md:text-2xl font-display font-black text-brand-carbon">800₽</span>
+                                <span className="block text-xl md:text-2xl font-display font-black text-brand-carbon">1200₽</span>
                                 <span className="text-xs text-gray-500 font-bold">Разовое</span>
                             </div>
                             <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
                             <div>
-                                <span className="block text-xl md:text-2xl font-display font-black text-brand-carbon">6000₽</span>
+                                <span className="block text-xl md:text-2xl font-display font-black text-brand-carbon">7300₽</span>
                                 <span className="text-xs text-gray-500 font-bold">Абонемент (8)</span>
                             </div>
                         </div>
@@ -235,7 +235,7 @@ const Training: React.FC = () => {
         <div id="advanced" className="scroll-mt-32 opacity-0 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
             <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
                 <div className="w-full md:w-1/2 relative px-4 md:px-0">
-                    <img src="https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?auto=format&fit=crop&q=80&w=800" className="rounded-[40px] w-full h-[300px] md:h-[500px] object-cover shadow-2xl" alt="Advanced" />
+                    <img src="/ГРУППА ПРО.png" className="rounded-[40px] w-full h-[300px] md:h-[500px] object-cover shadow-2xl" alt="ГРУППА PRO" />
                     <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md text-brand-carbon p-6 rounded-2xl max-w-[200px] md:max-w-xs border border-white/20 shadow-xl">
                         <p className="font-display font-black text-lg md:text-xl mb-1">PRO LEVEL</p>
                         <p className="text-xs text-gray-500 font-bold">Сложная техника и тактика.</p>
@@ -292,7 +292,7 @@ const Training: React.FC = () => {
                         </div>
                     </div>
                     <div className="md:w-1/2 relative">
-                        <img src="https://images.unsplash.com/photo-1613912111729-560bb507ef44?auto=format&fit=crop&q=80&w=800" className="rounded-3xl w-full h-64 md:h-80 object-cover border-4 border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500" alt="Game" />
+                        <img src="/Игровая.png" className="rounded-3xl w-full h-64 md:h-80 object-cover border-4 border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500" alt="Игровая тренировка" />
                         <a href={createTgLink("Здравствуйте! Меня интересует направление: Игровая тренировка. Хочу поиграть.")} target="_blank" rel="noreferrer" className="absolute -bottom-6 -left-6">
                             <button className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white text-emerald-600 font-black text-xs uppercase flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-transform border-4 border-emerald-50">
                                 ИГРАТЬ
@@ -307,7 +307,7 @@ const Training: React.FC = () => {
         <div id="individual" className="scroll-mt-32 opacity-0 animate-fade-in-up" style={{animationDelay: '0.5s'}}>
              <div className="flex flex-col md:flex-row gap-12 items-center">
                  <div className="w-full md:w-1/2 px-4 md:px-0">
-                    <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80&w=800" className="rounded-3xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-64 md:h-[400px] object-cover shadow-xl" alt="Personal" />
+                    <img src="/Персональная.png" className="rounded-3xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-64 md:h-[400px] object-cover shadow-xl" alt="Персональная тренировка" />
                  </div>
                  <div className="w-full md:w-1/2 px-4 md:px-0">
                     <h2 className="font-display font-black text-3xl md:text-4xl uppercase mb-4">ПЕРСОНАЛЬНО</h2>
@@ -317,7 +317,7 @@ const Training: React.FC = () => {
                     <div className="flex items-center justify-between bg-white border border-gray-100 p-6 rounded-2xl shadow-lg shadow-gray-200/50 mb-8">
                         <div>
                             <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">ЦЕНА</p>
-                            <p className="font-display font-black text-3xl text-brand-carbon">2000₽</p>
+                            <p className="font-display font-black text-3xl text-brand-carbon">3000₽</p>
                         </div>
                         <a href={createTgLink("Здравствуйте! Меня интересует персональная тренировка. Подберите мне тренера.")} target="_blank" rel="noreferrer">
                             <button className="px-6 md:px-8 py-3 bg-gray-100 text-brand-carbon rounded-xl font-bold uppercase text-xs hover:bg-brand-carbon hover:text-white transition-colors active:scale-95">

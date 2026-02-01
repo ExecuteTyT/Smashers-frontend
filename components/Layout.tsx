@@ -1,12 +1,46 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MagneticButton from './MagneticButton';
 import { createTgLink } from '../constants';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Handle logo click: scroll to top if on home, navigate to home if on other page
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    // Check if we're on the home page
+    // For HashRouter: pathname is '/', but we need to check the actual route
+    // location.pathname should be '/' for home page in HashRouter
+    // For other pages, pathname will be '/schedule', '/training', etc.
+    const isHomePage = location.pathname === '/' || location.pathname === '';
+    
+    if (isHomePage) {
+      // If already on Home, just smooth scroll to Hero/Top
+      const heroElement = document.getElementById('hero');
+      if (heroElement) {
+        heroElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      // If on any other page, force navigate to Root
+      navigate('/');
+      // Small delay to ensure navigation completes before scrolling
+      setTimeout(() => {
+        const heroElement = document.getElementById('hero');
+        if (heroElement) {
+          heroElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
 
   const navItems = [
     { path: '/', label: 'Главная', icon: 'fa-home' },
@@ -31,7 +65,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {/* 1. HEADER (Sport Pro Style) */}
       <nav className="fixed top-0 md:top-8 w-full z-[100] border-t-4 border-emerald-500 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 flex justify-between items-center px-6 md:px-12 py-3 md:py-4 transition-all duration-300 shadow-sm">
         <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group cursor-pointer">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center transition-transform group-hover:rotate-12 shadow-lg relative overflow-hidden">
                <i className="fa-solid fa-shuttlecock text-white text-sm md:text-lg relative z-10"></i>
                {/* Shine effect on logo */}
@@ -135,7 +169,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
          
          {/* Background Text "SMASHERS" */}
          <div className="absolute bottom-0 left-0 w-full text-center z-0 pointer-events-none select-none overflow-visible">
-            <span className="text-[13.5vw] md:text-[12vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block -translate-y-[15%] md:-translate-y-[10%]">
+            <span className="text-[13.5vw] md:text-[12vw] font-display font-black text-white opacity-[0.03] leading-none tracking-tighter block translate-y-[15%] md:translate-y-4">
                SMASHERS
             </span>
          </div>

@@ -9,24 +9,27 @@ import Contacts from './pages/Contacts';
 import FAQ from './pages/FAQ';
 import ScrollToTop from './components/ScrollToTop';
 import { BookingProvider } from './context/BookingContext';
+import { MembershipProvider } from './context/MembershipContext';
 import BookingModal from './components/BookingModal';
 
 const App: React.FC = () => {
   return (
     <BookingProvider>
-      <Router>
-        <ScrollToTop />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/training" element={<Training />} />
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/faq" element={<FAQ />} />
-          </Routes>
-        </Layout>
-        <BookingModal />
-      </Router>
+      <MembershipProvider>
+        <Router>
+          <ScrollToTop />
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/training" element={<Training />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/faq" element={<FAQ />} />
+            </Routes>
+          </Layout>
+          <BookingModal />
+        </Router>
+      </MembershipProvider>
     </BookingProvider>
   );
 };

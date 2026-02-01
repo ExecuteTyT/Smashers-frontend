@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useBooking } from '../context/BookingContext';
 import { apiClient, Session, Location } from '../config/api';
 import MembershipCalculator from '../components/MembershipCalculator';
+import { createTgLink } from '../constants';
 
 const FAQS = [
   { q: "Как заморозить абонемент?", a: "Абонемент можно заморозить один раз на срок до 14 дней. Просто напишите администратору в Telegram." },
@@ -25,7 +26,8 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Михаил", 
     name: "ГРУППА ДЛЯ НОВИЧКОВ", 
     maxSpots: 12, 
-    availableSpots: 8, 
+    availableSpots: 8,
+    price: 1200,
     status: "active" 
   },
   { 
@@ -36,7 +38,8 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Алина", 
     name: "PRO LEAGUE", 
     maxSpots: 8, 
-    availableSpots: 2, 
+    availableSpots: 2,
+    price: 1500,
     status: "active" 
   },
   { 
@@ -47,113 +50,192 @@ const MOCK_SESSIONS: Session[] = [
     trainers: "Олег", 
     name: "ИГРОВАЯ ТРЕНИРОВКА", 
     maxSpots: 16, 
-    availableSpots: 12, 
+    availableSpots: 12,
+    price: 1200,
     status: "active" 
   }
 ];
+
+// --- UTILITY FUNCTIONS ---
+
+// Remove emojis from text
+const removeEmojis = (text: string): string => {
+  if (!text) return '';
+  return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+};
+
+// Valid locations allowlist
+const VALID_LOCATIONS = [
+  { id: 1, name: "Центр Бадминтона" },
+  { id: 2, name: "Зал на Ямашева" },
+  { id: 3, name: "Максимус на Баруди" }
+];
+
+// Location name mapping (variations -> canonical)
+const LOCATION_MAP: Record<string, string> = {
+  "центр бадминтона": "Центр Бадминтона",
+  "центр": "Центр Бадминтона",
+  "цб": "Центр Бадминтона",
+  "ямашева": "Зал на Ямашева",
+  "зал на ямашева": "Зал на Ямашева",
+  "максимус": "Максимус на Баруди",
+  "максимус на баруди": "Максимус на Баруди",
+  "баруди": "Максимус на Баруди"
+};
+
+// Normalize session data: fix children's training, remove emojis, map locations
+const normalizeSession = (session: Session): Session => {
+  if (!session) return session;
+  
+  // Create a deep copy to avoid mutating original
+  const normalized: Session = { ...session };
+  
+  // Clean emojis from session name
+  if (normalized.name) {
+    normalized.name = removeEmojis(normalized.name);
+  }
+  
+  // Fix location and category
+  if (normalized.location) {
+    const locName = normalized.location.name || '';
+    const cleanLocName = removeEmojis(locName).toLowerCase();
+    
+    // Check if this is children's training (in location or category name)
+    const isChildren = 
+      cleanLocName.includes('детск') || 
+      (normalized.category?.name && normalized.category.name.toLowerCase().includes('детск'));
+    
+    if (isChildren) {
+      // Force children's training to correct location and category
+      normalized.location = {
+        id: 3, // Максимус на Баруди
+        name: "Максимус на Баруди"
+      };
+      normalized.category = {
+        id: 999, // Consistent ID for children's category
+        name: "Детские тренировки"
+      };
+    } else {
+      // Map location name to canonical form
+      const mappedName = LOCATION_MAP[cleanLocName] || null;
+      if (mappedName) {
+        const validLoc = VALID_LOCATIONS.find(l => l.name === mappedName);
+        if (validLoc) {
+          normalized.location = {
+            id: validLoc.id,
+            name: validLoc.name
+          };
+        } else {
+          // Clean emojis from location name
+          normalized.location = {
+            ...normalized.location,
+            name: removeEmojis(normalized.location.name)
+          };
+        }
+      } else {
+        // Clean emojis but keep original if not in map
+        normalized.location = {
+          ...normalized.location,
+          name: removeEmojis(normalized.location.name)
+        };
+      }
+    }
+  }
+  
+  // Clean category name emojis
+  if (normalized.category) {
+    normalized.category = {
+      ...normalized.category,
+      name: removeEmojis(normalized.category.name)
+    };
+  }
+  
+  return normalized;
+};
 
 const Schedule: React.FC = () => {
   const { openBooking } = useBooking();
   const [activeMainTab, setActiveMainTab] = useState<'schedule' | 'pricing'>('schedule');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // --- API DATA ---
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [locations, setLocations] = useState<Location[]>([]);
+  // --- CACHED DATA (30 days range) ---
+  const [allSessionsCache, setAllSessionsCache] = useState<Session[]>([]);
+  const [allLocations, setAllLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [cacheDateRange, setCacheDateRange] = useState<{ from: string; to: string } | null>(null);
   
-  // --- DATE STRIP LOGIC ---
-  const generateDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      dates.push({
-        fullDate: d.toISOString().split('T')[0],
-        day: d.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase(),
-        date: d.getDate()
-      });
-    }
-    return dates;
-  };
-  const dateStrip = generateDates();
+  // --- UI STATE ---
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [dateWindowStart, setDateWindowStart] = useState<number>(0); // Days offset from today
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
+  // --- INITIAL DATA FETCH (30 days range) ---
   useEffect(() => {
-    let cancelled = false; // Защита от дублирования запросов
+    let cancelled = false;
     
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       setLoading(true);
       try {
-        // Форматируем дату в правильном формате (YYYY-MM-DD)
-        const formattedDate = selectedDate.split('T')[0]; // Убеждаемся что формат правильный
+        const today = new Date();
+        const dateFrom = today.toISOString().split('T')[0];
+        const dateTo = new Date(today);
+        dateTo.setDate(today.getDate() + 30);
+        const dateToStr = dateTo.toISOString().split('T')[0];
         
-        console.log('[Schedule] Fetching sessions for date:', formattedDate);
+        console.log('[Schedule] Fetching sessions range:', dateFrom, 'to', dateToStr);
         
-        // Fetch Sessions, Locations
         const [sessionsRes, locationsRes] = await Promise.all([
-           apiClient.get<{ success: boolean; data: Session[] }>('/sessions', { date: formattedDate }).catch((err) => {
-             console.error('[Schedule] Error fetching sessions:', err);
-             return null;
-           }),
-           apiClient.get<{ success: boolean; data: Location[] }>('/locations').catch((err) => {
-             console.error('[Schedule] Error fetching locations:', err);
-             return null;
-           }),
+          apiClient.get<{ success: boolean; data: Session[] }>('/sessions', {
+            date_from: dateFrom,
+            date_to: dateToStr,
+          }).catch((err) => {
+            console.error('[Schedule] Error fetching sessions:', err);
+            return null;
+          }),
+          apiClient.get<{ success: boolean; data: Location[] }>('/locations').catch((err) => {
+            console.error('[Schedule] Error fetching locations:', err);
+            return null;
+          }),
         ]);
         
-        // Проверка на отмену (защита от дублирования)
         if (cancelled) return;
         
-        console.log('[Schedule] Sessions response:', sessionsRes);
-        console.log('[Schedule] Locations response:', locationsRes);
+        if (sessionsRes && sessionsRes.success && sessionsRes.data && Array.isArray(sessionsRes.data)) {
+          console.log('[Schedule] Received', sessionsRes.data.length, 'sessions from API');
+          
+          // Normalize all sessions before caching
+          const normalizedSessions = sessionsRes.data
+            .map(normalizeSession)
+            .filter(session => {
+              // Filter out sessions with invalid locations (only keep the 3 valid ones)
+              if (!session.location) return false;
+              const locName = session.location.name?.toLowerCase() || '';
+              return VALID_LOCATIONS.some(vl => 
+                vl.name.toLowerCase() === locName || 
+                LOCATION_MAP[locName] === vl.name
+              ) || locName.includes('максимус') || locName.includes('баруди');
+            });
+          
+          console.log('[Schedule] Cached', normalizedSessions.length, 'normalized sessions');
+          setAllSessionsCache(normalizedSessions);
+          setCacheDateRange({ from: dateFrom, to: dateToStr });
+        } else {
+          console.log('[Schedule] Using fallback sessions');
+          const normalizedMock = MOCK_SESSIONS.map(normalizeSession);
+          setAllSessionsCache(normalizedMock);
+        }
         
-        // 1. Sessions
-        if (sessionsRes && sessionsRes.data && Array.isArray(sessionsRes.data)) {
-           console.log('[Schedule] Received sessions:', sessionsRes.data.length, 'items');
-           
-           // Фильтруем тренировки по выбранной дате (на случай если API вернул все тренировки)
-           const filteredSessions = sessionsRes.data
-             .filter(session => {
-               if (!session.datetime) return false;
-               const sessionDate = new Date(session.datetime);
-               const selected = new Date(formattedDate + 'T00:00:00');
-               const nextDay = new Date(selected);
-               nextDay.setDate(nextDay.getDate() + 1);
-               
-               // Проверяем, что тренировка в выбранный день
-               const isInSelectedDay = sessionDate >= selected && sessionDate < nextDay;
-               return isInSelectedDay;
-             })
-             .sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
-           
-           console.log('[Schedule] Filtered sessions for date', formattedDate, ':', filteredSessions.length, 'items');
-           setSessions(filteredSessions);
-        } else {
-           console.log('[Schedule] No sessions data, using fallback. Response:', sessionsRes);
-           const today = new Date().toISOString().split('T')[0];
-           if (selectedDate === today) {
-               setSessions(MOCK_SESSIONS);
-           } else {
-               setSessions([]);
-           }
-        }
-
-        // 2. Locations
         if (locationsRes && locationsRes.success && locationsRes.data && Array.isArray(locationsRes.data)) {
-            console.log('[Schedule] Setting locations:', locationsRes.data.length, 'items');
-            setLocations(locationsRes.data);
+          setAllLocations(locationsRes.data);
         } else {
-            console.log('[Schedule] No locations data, using fallback');
-            setLocations(MOCK_LOCATIONS);
+          setAllLocations(MOCK_LOCATIONS);
         }
-
       } catch (err) {
         if (!cancelled) {
-          console.error("[Schedule] Failed to fetch schedule data, using fallback", err);
-          setSessions(MOCK_SESSIONS);
-          setLocations(MOCK_LOCATIONS);
+          console.error("[Schedule] Failed to fetch initial data", err);
+          setAllSessionsCache(MOCK_SESSIONS);
+          setAllLocations(MOCK_LOCATIONS);
         }
       } finally {
         if (!cancelled) {
@@ -162,19 +244,130 @@ const Schedule: React.FC = () => {
       }
     };
     
-    fetchData();
+    fetchInitialData();
     
-    // Cleanup функция для отмены запроса при изменении зависимостей
     return () => {
       cancelled = true;
     };
-  }, [selectedDate]);
+  }, []); // Only on mount
+
+  // --- DATE STRIP GENERATION (with pagination) ---
+  const generateDates = (startOffset: number = 0) => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + startOffset + i);
+      dates.push({
+        fullDate: d.toISOString().split('T')[0],
+        day: d.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase(),
+        date: d.getDate()
+      });
+    }
+    return dates;
+  };
+  
+  const dateStrip = generateDates(dateWindowStart);
+  
+  const handleNextWeek = () => {
+    setDateWindowStart(prev => prev + 7);
+  };
+  
+  const handlePrevWeek = () => {
+    setDateWindowStart(prev => Math.max(0, prev - 7));
+  };
+
+  // --- CLIENT-SIDE FILTERING ---
+  
+  // Get all unique categories from cache (for filter display)
+  const allCategories = useMemo(() => {
+    const categoryMap = new Map<number, { id: number; name: string }>();
+    
+    // Add all categories from cached sessions
+    allSessionsCache.forEach(session => {
+      if (session.category) {
+        // Filter out "Детские тренировки" category
+        const categoryName = session.category.name.toLowerCase();
+        if (categoryName.includes('детск')) {
+          return; // Skip children's training category
+        }
+        
+        if (!categoryMap.has(session.category.id)) {
+          categoryMap.set(session.category.id, session.category);
+        }
+      }
+    });
+    
+    return Array.from(categoryMap.values());
+  }, [allSessionsCache]);
+  
+  // Get all unique locations from cache (for filter display) - only valid locations
+  const allLocationsList = useMemo(() => {
+    const locationMap = new Map<number, { id: number; name: string }>();
+    
+    // Only include valid locations from cache
+    allSessionsCache.forEach(session => {
+      if (session.location) {
+        const locName = session.location.name || '';
+        // Check if it's one of the valid locations
+        const isValid = VALID_LOCATIONS.some(vl => vl.name === locName);
+        if (isValid && !locationMap.has(session.location.id)) {
+          locationMap.set(session.location.id, session.location);
+        }
+      }
+    });
+    
+    // Ensure all 3 valid locations are present (even if no sessions yet)
+    VALID_LOCATIONS.forEach(vl => {
+      if (!locationMap.has(vl.id)) {
+        locationMap.set(vl.id, vl);
+      }
+    });
+    
+    return Array.from(locationMap.values()).sort((a, b) => a.id - b.id);
+  }, [allSessionsCache]);
+  
+  // Filter sessions by date and filters (client-side)
+  const filteredSessions = useMemo(() => {
+    return allSessionsCache.filter(session => {
+      // Date filter
+      if (!session.datetime) return false;
+      const sessionDate = session.datetime.split('T')[0];
+      if (sessionDate !== selectedDate) return false;
+      
+      // Location filter
+      if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
+      
+      // Category filter
+      if (selectedCategoryId && session.category?.id !== selectedCategoryId) return false;
+      
+      return true;
+    }).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+  }, [allSessionsCache, selectedDate, selectedLocationId, selectedCategoryId]);
+  
+  // Smart dots: Check which dates have matching sessions (based on current filters)
+  const getDateHasMatchingSessions = (dateStr: string): boolean => {
+    return allSessionsCache.some(session => {
+      if (!session.datetime) return false;
+      const sessionDate = session.datetime.split('T')[0];
+      if (sessionDate !== dateStr) return false;
+      
+      if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
+      if (selectedCategoryId && session.category?.id !== selectedCategoryId) return false;
+      
+      return true;
+    });
+  };
 
   // --- HELPERS ---
 
+  // Format time without timezone offset - display as received
   const formatTime = (iso: string) => {
       try {
-          return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+          const date = new Date(iso);
+          const hours = String(date.getUTCHours()).padStart(2, '0');
+          const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+          return `${hours}:${minutes}`;
       } catch {
           return "18:00";
       }
@@ -205,25 +398,25 @@ const Schedule: React.FC = () => {
               РАСПИСАНИЕ
             </h1>
             
-            {/* MAIN TOGGLE SWITCH */}
-            <div className="bg-gray-100 p-1.5 rounded-full flex items-center relative w-full xl:w-auto shadow-inner">
-               <div 
-                 className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] md:w-[200px] bg-white rounded-full shadow-md transition-all duration-300 ease-out border border-gray-100`}
-                 style={{ 
-                   left: activeMainTab === 'schedule' ? '6px' : 'calc(100% - 6px)',
-                   transform: activeMainTab === 'schedule' ? 'translateX(0)' : 'translateX(-100%)'
-                 }}
-               ></div>
-               
+            {/* MAIN TOGGLE SWITCH - Segmented Control */}
+            <div className="flex p-1 bg-gray-100 rounded-full w-full md:w-[400px] h-14 mx-auto relative shadow-inner">
                <button 
                  onClick={() => setActiveMainTab('schedule')}
-                 className={`relative z-10 flex-1 md:w-[200px] py-3 text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-300 rounded-full flex items-center justify-center gap-2 ${activeMainTab === 'schedule' ? 'text-brand-carbon' : 'text-gray-400'}`}
+                 className={`flex-1 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+                   activeMainTab === 'schedule' 
+                     ? 'bg-emerald-500 text-white shadow-lg' 
+                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200'
+                 }`}
                >
                  <i className="fa-regular fa-calendar"></i> ТРЕНИРОВКИ
                </button>
                <button 
                  onClick={() => setActiveMainTab('pricing')}
-                 className={`relative z-10 flex-1 md:w-[200px] py-3 text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-300 rounded-full flex items-center justify-center gap-2 ${activeMainTab === 'pricing' ? 'text-brand-carbon' : 'text-gray-400'}`}
+                 className={`flex-1 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+                   activeMainTab === 'pricing' 
+                     ? 'bg-emerald-500 text-white shadow-lg' 
+                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200'
+                 }`}
                >
                  <i className="fa-solid fa-gem"></i> АБОНЕМЕНТЫ
                </button>
@@ -237,26 +430,119 @@ const Schedule: React.FC = () => {
         {activeMainTab === 'schedule' && (
           <div className="animate-fade-in-up">
 
-            {/* 2.2 DATE STRIP */}
-            <div className="flex gap-3 overflow-x-auto pb-8 mb-8 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 snap-x">
-               {dateStrip.map((d) => (
-                 <button
-                   key={d.fullDate}
-                   onClick={() => setSelectedDate(d.fullDate)}
-                   className={`snap-center min-w-[75px] md:min-w-[85px] flex-col items-center justify-center py-4 md:py-5 rounded-2xl transition-all duration-300 border flex relative overflow-hidden ${
-                     selectedDate === d.fullDate
-                     ? 'bg-[#0F172A] border-[#0F172A] shadow-xl scale-105'
-                     : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
-                   }`}
-                 >
-                   <span className={`text-[9px] md:text-[10px] font-black uppercase mb-1 tracking-widest text-gray-400`}>{d.day}</span>
-                   <span className={`text-xl md:text-2xl font-display font-bold ${selectedDate === d.fullDate ? 'text-white' : 'text-gray-800'}`}>{d.date}</span>
-                   {selectedDate === d.fullDate && (
-                     <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-green-500"></div>
-                   )}
-                 </button>
-               ))}
+            {/* 2.2 DATE STRIP WITH PAGINATION */}
+            <div className="flex items-center gap-3 mb-8">
+              {dateWindowStart > 0 && (
+                <button
+                  onClick={handlePrevWeek}
+                  className="flex-shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors"
+                >
+                  <i className="fa-solid fa-chevron-left text-gray-600"></i>
+                </button>
+              )}
+              
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1 snap-x">
+                {dateStrip.map((d) => {
+                  const hasMatchingSessions = getDateHasMatchingSessions(d.fullDate);
+                  return (
+                    <button
+                      key={d.fullDate}
+                      onClick={() => setSelectedDate(d.fullDate)}
+                      className={`snap-center min-w-[75px] md:min-w-[85px] flex-col items-center justify-center py-4 md:py-5 rounded-2xl transition-all duration-300 border flex relative overflow-hidden ${
+                        selectedDate === d.fullDate
+                        ? 'bg-[#0F172A] border-[#0F172A] shadow-xl scale-105'
+                        : 'bg-white border-gray-100 text-gray-400 hover:border-gray-300'
+                      }`}
+                    >
+                      <span className={`text-[9px] md:text-[10px] font-black uppercase mb-1 tracking-widest text-gray-400`}>{d.day}</span>
+                      <span className={`text-xl md:text-2xl font-display font-bold ${selectedDate === d.fullDate ? 'text-white' : 'text-gray-800'}`}>{d.date}</span>
+                      {hasMatchingSessions && (
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                      )}
+                      {selectedDate === d.fullDate && (
+                        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-green-500"></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <button
+                onClick={handleNextWeek}
+                className="flex-shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 flex items-center justify-center transition-colors"
+              >
+                <i className="fa-solid fa-chevron-right text-gray-600"></i>
+              </button>
             </div>
+
+            {/* 2.2.5 PREMIUM FILTER BAR (Chips Style) */}
+            {(allCategories.length > 0 || allLocationsList.length > 0) && (
+              <div className="mb-8 space-y-4">
+                {/* Category Filter Row */}
+                {allCategories.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-500">КАТЕГОРИЯ</label>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                      <button
+                        onClick={() => setSelectedCategoryId(null)}
+                        className={`px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                          selectedCategoryId === null
+                            ? 'bg-emerald-500 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        ВСЕ
+                      </button>
+                      {allCategories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedCategoryId(cat.id)}
+                          className={`px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                            selectedCategoryId === cat.id
+                              ? 'bg-emerald-500 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Location Filter Row */}
+                {allLocationsList.length > 0 && (
+                  <div className="flex flex-col gap-3">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-500">ЛОКАЦИЯ</label>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                      <button
+                        onClick={() => setSelectedLocationId(null)}
+                        className={`px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${
+                          selectedLocationId === null
+                            ? 'bg-emerald-500 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        <i className="fa-solid fa-map-pin"></i> ВСЕ
+                      </button>
+                      {allLocationsList.map((loc) => (
+                        <button
+                          key={loc.id}
+                          onClick={() => setSelectedLocationId(loc.id)}
+                          className={`px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider transition-all whitespace-nowrap flex items-center gap-2 ${
+                            selectedLocationId === loc.id
+                              ? 'bg-emerald-500 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          <i className="fa-solid fa-location-dot"></i> {removeEmojis(loc.name)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* 2.3 THE PRO SCHEDULE LIST */}
             <div className="space-y-4">
@@ -264,15 +550,17 @@ const Schedule: React.FC = () => {
                    <div className="py-20 text-center text-gray-400 animate-pulse">
                        Загрузка расписания...
                    </div>
-               ) : sessions.length === 0 ? (
+               ) : filteredSessions.length === 0 ? (
                    <div className="text-center py-20 opacity-50 border-2 border-dashed border-gray-200 rounded-3xl mt-8">
                       <i className="fa-regular fa-calendar-xmark text-4xl mb-4 text-gray-400"></i>
-                      <p className="font-bold text-gray-400 uppercase tracking-widest">В ЭТОТ ДЕНЬ ТРЕНИРОВОК НЕТ</p>
+                      <p className="font-bold text-gray-400 uppercase tracking-widest">
+                        {allSessionsCache.length === 0 ? 'ЗАГРУЗКА РАСПИСАНИЯ...' : 'НЕТ ТРЕНИРОВОК ПО ВЫБРАННЫМ ФИЛЬТРАМ'}
+                      </p>
                    </div>
                ) : (
-                   sessions.map((slot) => {
+                   filteredSessions.map((slot) => {
                      const status = getStatusInfo(slot);
-                     const locName = locations.find(l => l.id === slot.location.id)?.name || slot.location.name;
+                     const locName = removeEmojis(allLocations.find(l => l.id === slot.location.id)?.name || slot.location.name);
                      
                      return (
                          <div 
@@ -293,13 +581,20 @@ const Schedule: React.FC = () => {
                                 <h3 className="font-display font-black text-lg md:text-2xl text-brand-carbon uppercase mb-2 group-hover:text-emerald-600 transition-colors">
                                     {slot.name}
                                 </h3>
-                                <div className="flex items-center gap-3">
-                                     <div className="w-6 h-6 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                                        <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(slot.trainers)}&background=random`} alt="Trainer" className="w-full h-full object-cover" />
-                                     </div>
-                                     <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                        Тренер: <span className="text-brand-carbon">{slot.trainers}</span>
-                                     </span>
+                                <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                                     {slot.category && (
+                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200">
+                                           {slot.category.name}
+                                        </span>
+                                     )}
+                                     {slot.price !== null && slot.price !== undefined && (
+                                        <div className="flex items-center gap-1.5">
+                                           <i className="fa-solid fa-ruble-sign text-emerald-600 text-xs"></i>
+                                           <span className="text-sm font-black text-emerald-600">
+                                              {slot.price.toLocaleString('ru-RU')} ₽
+                                           </span>
+                                        </div>
+                                     )}
                                 </div>
                             </div>
                             <div className="flex items-center justify-between md:flex-col md:items-end md:gap-3 border-t md:border-t-0 border-gray-50 pt-4 md:pt-0 mt-2 md:mt-0">
@@ -378,12 +673,14 @@ const Schedule: React.FC = () => {
               </div>
 
               <div className="flex flex-col items-center">
-                 <button 
-                    onClick={() => openBooking('general', undefined, 'Пробная тренировка')}
-                    className="bg-white text-emerald-700 px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-brand-lime hover:text-brand-carbon transition-colors shadow-xl active:scale-95"
+                 <a 
+                    href={createTgLink("Здравствуйте! Хочу получить билет на пробную тренировку.")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white text-emerald-700 px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-brand-lime hover:text-brand-carbon transition-colors shadow-xl active:scale-95 inline-block text-center"
                  >
                     ПОЛУЧИТЬ БИЛЕТ
-                 </button>
+                 </a>
               </div>
            </div>
         </div>

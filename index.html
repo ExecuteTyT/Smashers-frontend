@@ -39,6 +39,7 @@
                         'shine': 'shine 3s linear infinite',
                         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
                         'button-shimmer': 'button-shimmer 3s linear infinite',
+                        'pulse-button': 'pulse-button 2s ease-in-out infinite'
                     },
                     keyframes: {
                         shine: {
@@ -50,6 +51,16 @@
                                 boxShadow: '0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2)'
                             },
                             '50%': { 
+                                boxShadow: '0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.4)'
+                            }
+                        },
+                        'pulse-button': {
+                            '0%, 100%': { 
+                                transform: 'scale(1)',
+                                boxShadow: '0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.2)'
+                            },
+                            '50%': { 
+                                transform: 'scale(1.02)',
                                 boxShadow: '0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.4)'
                             }
                         },
@@ -89,6 +100,10 @@
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Ensure session card hover isolation */
+        .group:hover .group-hover\:bg-emerald-500 {
+            background-color: rgb(16, 185, 129) !important;
+        }
         @keyframes pulse-dot {
             0% { transform: scale(0.9); opacity: 0.6; }
             50% { transform: scale(1.1); opacity: 1; }

@@ -53,13 +53,35 @@ class ApiClient {
     }
 
     try {
-      const response = await fetch(url, config);
-      
-      // Проверка на ошибки сети или пустой ответ
-      if (!response.ok && response.status === 0) {
+      let response: Response;
+      try {
+        response = await fetch(url, config);
+      } catch (fetchError) {
+        // Ошибка сети на уровне fetch (CORS, proxy, DNS и т.д.)
         throw { 
           code: 'NETWORK_ERROR', 
-          message: 'Network error: Unable to connect to server. Check CORS and API URL.' 
+          message: fetchError instanceof Error ? fetchError.message : 'Network error: Unable to connect to server' 
+        };
+      }
+      
+      // Проверка на HTTP ошибки
+      if (!response.ok) {
+        // Попытка получить JSON с ошибкой, но не падаем если не получится
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          // Если не удалось распарсить JSON, создаем базовую ошибку
+          throw { 
+            code: 'HTTP_ERROR', 
+            message: `Error ${response.status}: ${response.statusText}` 
+          };
+        }
+        
+        const apiError = errorData as ApiErrorResponse | { error?: ApiError };
+        throw apiError.error || { 
+          code: 'HTTP_ERROR', 
+          message: `Error ${response.status}: ${response.statusText}` 
         };
       }
 
@@ -76,21 +98,17 @@ class ApiClient {
         throw errorData.error;
       }
 
-      // Проверка response.ok для HTTP ошибок
-      if (!response.ok) {
-        const errorData = data as ApiErrorResponse | { error?: ApiError };
-        throw errorData.error || { 
-          code: 'HTTP_ERROR', 
-          message: `Error ${response.status}: ${response.statusText}` 
-        };
-      }
-
       // Возвращаем весь объект ответа (включая success и data)
       return data as T;
     } catch (error) {
-      // Логирование ошибок для отладки
-      if (import.meta.env.DEV) {
-        console.error('[API] Error:', error);
+      // Логирование ошибок только для реальных ошибок API, не для сетевых
+      // Сетевые ошибки уже обрабатываются в компонентах через .catch()
+      if (import.meta.env.DEV && error && typeof error === 'object' && 'code' in error) {
+        const apiError = error as ApiError;
+        // Логируем только если это не обычная сетевая ошибка
+        if (apiError.code !== 'NETWORK_ERROR') {
+          console.error('[API] Error:', error);
+        }
       }
       
       // Если это уже наш ApiError, пробрасываем дальше
@@ -164,7 +182,9 @@ export interface Session {
   name: string;
   maxSpots: number;
   availableSpots: number;
+  price: number | null; // Цена занятия в рублях (может быть null)
   status: string;
+  lastUpdated?: string;
 }
 
 export interface BookingRequest {

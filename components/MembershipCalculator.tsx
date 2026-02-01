@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { apiClient, Membership } from '../config/api';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Membership } from '../config/api';
 import { useBooking } from '../context/BookingContext';
+import { useMemberships } from '../context/MembershipContext';
 
 // Types for internal logic
 type CategoryKey = 'adults' | 'kids' | 'personal';
@@ -20,65 +21,12 @@ const CATEGORY_LABELS: Record<CategoryKey, string> = {
 
 const MembershipCalculator: React.FC = () => {
   const { openBooking } = useBooking();
-  const [loading, setLoading] = useState(true);
-  const [rawMemberships, setRawMemberships] = useState<Membership[]>([]);
-  const [basePrice, setBasePrice] = useState<number>(1200);
+  const { memberships: rawMemberships, basePrice, loading } = useMemberships();
 
   // Selection State
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('adults');
   const [activeLocation, setActiveLocation] = useState<string>('');
   const [activeSessionCount, setActiveSessionCount] = useState<number>(0);
-
-  // 1. Fetch Data
-  useEffect(() => {
-    let cancelled = false; // Защита от дублирования запросов (React StrictMode)
-    
-    const init = async () => {
-      setLoading(true);
-      try {
-        const [allRes, singleRes] = await Promise.all([
-          apiClient.get<{ data: Membership[] }>('/memberships').catch(() => ({ data: [] })),
-          apiClient.get<{ data: Membership }>('/memberships/2').catch(() => ({ 
-            data: { id: 2, name: 'Разовая тренировка', price: 1200, sessionCount: 1, type: 'Single', isVisible: false } as Membership 
-          }))
-        ]);
-
-        // Проверка на отмену (защита от дублирования)
-        if (cancelled) return;
-
-        let items = allRes.data || [];
-        const singleItem = singleRes.data;
-
-        // НЕ фильтруем подарочные сертификаты здесь - фильтрация будет при организации данных
-        // по категориям (исключаем только для adults/kids, но оставляем для personal)
-
-        // Ensure single item is in the list if not present (it acts as base for 1 session)
-        if (singleItem && singleItem.id && !items.find(m => m.id === singleItem.id)) {
-            items.push(singleItem);
-        }
-
-        if (!cancelled) {
-          setRawMemberships(items);
-          if (singleItem && singleItem.price) setBasePrice(singleItem.price);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          console.error("Calculator data fetch error", e);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    init();
-    
-    // Cleanup функция для отмены запроса при размонтировании
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // 2. Transform Data
   const organizedData = useMemo(() => {
@@ -87,6 +35,11 @@ const MembershipCalculator: React.FC = () => {
       kids: {},
       personal: {}
     };
+
+    // Safety check: ensure rawMemberships is an array
+    if (!Array.isArray(rawMemberships)) {
+      return data;
+    }
 
     rawMemberships.forEach(item => {
       // Safety check to prevent crashing if data is malformed
@@ -97,7 +50,7 @@ const MembershipCalculator: React.FC = () => {
       const isGiftCertificate = type.includes('подарочн') || type.includes('серт');
       
       let cat: CategoryKey = 'adults';
-      let loc = 'Центр (ЦБ)';
+      let loc = 'Центр Бадминтона';
 
       // Categorize
       if (name.includes('дети')) {
@@ -112,7 +65,7 @@ const MembershipCalculator: React.FC = () => {
       } else {
         cat = 'adults';
         if (name.includes('ямашева')) loc = 'Ямашева';
-        else loc = 'Центр (ЦБ)';
+        else loc = 'Центр Бадминтона';
         // Для категории "adults" исключаем подарочные сертификаты
         if (isGiftCertificate) return;
       }
@@ -143,7 +96,7 @@ const MembershipCalculator: React.FC = () => {
     } else {
         setActiveLocation('');
     }
-  }, [activeCategory, organizedData]);
+  }, [activeCategory, organizedData, activeLocation]);
 
   // Effect to set default session count when location changes
   useEffect(() => {
@@ -186,7 +139,35 @@ const MembershipCalculator: React.FC = () => {
 
   if (loading) return <div className="text-white text-center py-20 animate-pulse bg-slate-900 rounded-[2.5rem] p-12">Загрузка калькулятора...</div>;
 
-  const availableLocations = Object.keys(organizedData[activeCategory] || {});
+  // Get all unique locations from all categories to show Максимус immediately
+  const allLocationsSet = useMemo(() => {
+    const locationsSet = new Set<string>();
+    Object.keys(organizedData).forEach(cat => {
+      Object.keys(organizedData[cat]).forEach(loc => {
+        locationsSet.add(loc);
+      });
+    });
+    return Array.from(locationsSet);
+  }, [organizedData]);
+
+  // Filter locations: show all locations for adults category (including Максимус), specific for others
+  const availableLocations = useMemo(() => {
+    const categoryLocations = Object.keys(organizedData[activeCategory] || {});
+    
+    // For "adults" category, show all locations including Максимус if it exists in any category
+    if (activeCategory === 'adults') {
+      return allLocationsSet.filter(loc => {
+        // Always include Максимус if it exists
+        if (loc === 'Максимус') return true;
+        // Include other locations from adults category
+        return categoryLocations.includes(loc);
+      });
+    }
+    
+    // For other categories, show only locations from that category
+    return categoryLocations;
+  }, [organizedData, activeCategory, allLocationsSet]);
+
   const availableItems = organizedData[activeCategory]?.[activeLocation] || [];
 
   return (
