@@ -177,7 +177,7 @@ const Training: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <img src="/Группа START.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" />
-                        <img src="/Группа старт2.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" />
+                        <img src="/Группа START2.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" />
                     </div>
                 </div>
 
