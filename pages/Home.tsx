@@ -31,11 +31,15 @@ const FormatCard: React.FC<{
       )}
 
       {/* Image Section - 50-55% of card height with gradient overlay */}
-      <div className="relative h-48 md:h-56 w-full overflow-hidden flex-shrink-0">
+      <div className="relative h-48 md:h-56 w-full overflow-hidden flex-shrink-0 bg-gray-200">
         <img 
           src={img} 
           alt={title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+          onError={(e) => {
+            console.error('Image failed to load:', img);
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
         />
         {/* Dark gradient overlay for text visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
