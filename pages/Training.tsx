@@ -176,8 +176,10 @@ const Training: React.FC = () => {
                         <i className="fa-solid fa-gift text-emerald-500"></i> Инвентарь бесплатно
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <img src="/Группа START.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" />
-                        <img src="/Группа старт2.png" className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" />
+                        <img src={encodeURI("/Группа START.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" />
+                        <img src={encodeURI("/Группа старт2.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" onError={(e) => {
+                            console.error('Image failed to load:', e.currentTarget.src);
+                        }} />
                     </div>
                 </div>
 
