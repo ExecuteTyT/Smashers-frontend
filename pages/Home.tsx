@@ -479,7 +479,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для начинающих"
             desc="Фундамент техники. Хват, перемещения и первый точный удар."
-            img={encodeURI("/Для начинающих.png")}
+            img="/Для начинающих.png"
             price="800₽"
             schedule="ВТ, ЧТ 19:00"
             gridSpan="md:col-span-3"
@@ -487,7 +487,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Для продолжающих"
             desc="Тактика, выносливость и мощные смэши. Уровень PRO."
-            img={encodeURI("/Для продолжающих.png")}
+            img="/Для продолжающих.png"
             price="900₽"
             schedule="ПН, СР, ПТ 19:00"
             gridSpan="md:col-span-3"
@@ -496,7 +496,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Игровая тренировка"
             desc="Спарринги, эмоции и реальная игровая практика без пауз."
-            img={encodeURI("/Игровая.png")}
+            img="/Игровая.png"
             price="600₽"
             schedule="Каждый день"
             gridSpan="md:col-span-3"
@@ -504,7 +504,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Американка"
             desc="Турнирный формат 'на вылет'. Чистый адреналин."
-            img={encodeURI("/Американка2.png")}
+            img="/Американка2.png"
             price="1000₽"
             schedule="СБ 14:00"
             gridSpan="md:col-span-3"
@@ -512,7 +512,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Персональная"
             desc="1 на 1 с тренером. Максимальный фокус на твоих ошибках."
-            img={encodeURI("/Персональная.png")}
+            img="/Персональная.png"
             price="2000₽"
             schedule="По записи"
             gridSpan="md:col-span-3"
@@ -520,7 +520,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Сплит-тренировка"
             desc="Тренировка для двоих. Эффективно и выгодно."
-            img={encodeURI("/Сплит-тренировка.png")}
+            img="/Сплит-тренировка.png"
             price="1400₽"
             schedule="По записи"
             gridSpan="md:col-span-3"
@@ -528,7 +528,7 @@ const Home: React.FC = () => {
           <FormatCard 
             title="Детская Академия"
             desc="Спорт, дисциплина и веселье для будущих чемпионов (6-14 лет)."
-            img={encodeURI("/Детская академия.png")}
+            img="/Детская академия.png"
             price="600₽"
             schedule="ПН, СР, ПТ 16:00"
             gridSpan="md:col-span-3"

@@ -12,7 +12,7 @@
       }
     },
     {
-      "src": "/(.*\\.(png|jpg|jpeg|gif|svg|webp))",
+      "src": "/(.*\\.(png|jpg|jpeg|gif|svg|webp|PNG|JPG|JPEG))",
       "headers": {
         "cache-control": "public, max-age=31536000, immutable"
       }

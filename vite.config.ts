@@ -9,6 +9,15 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // Прокси для обхода CORS в development (только для локальной разработки!)
+        proxy: {
+          '/api': {
+            target: 'https://apismash.braidx.tech',
+            changeOrigin: true,
+            secure: true,
+            rewrite: (path) => path.replace(/^\/api/, '/api')
+          }
+        }
       },
       plugins: [react()],
       define: {
