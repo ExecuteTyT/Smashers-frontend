@@ -5,6 +5,7 @@ import MagneticButton from '../components/MagneticButton';
 import { useBooking } from '../context/BookingContext';
 import { apiClient, Session, Membership } from '../config/api';
 import { createTgLink } from '../constants';
+import eventsCardImg from '../esKZ7dckWq69ui4i1ONHxWDm8AcWGLRTKKsx9FoH4-CUyFVkboUas7XHtf-UZHNDm_YBPZ8QkSmSs1VIaDplcTc7.jpg';
 
 // --- COMPONENTS ---
 
@@ -142,12 +143,6 @@ const REVIEWS = [
 
 const WHY_US_CARDS = [
   {
-    title: "ТУРНИРЫ И ВЫЕЗДЫ",
-    shortTitle: "СОБЫТИЯ",
-    desc: "Мы регулярно выезжаем в разные уголки Татарстана, проводим веселые сборы и любительские соревнования. Скучно не будет!",
-    img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
     title: "КОМАНДА",
     shortTitle: "КОМАНДА",
     desc: "Профессиональные тренеры, действующие спортсмены сборной, мастера спорта познакомят вас с бадминтоном и влюбят в этот спорт.",
@@ -158,6 +153,12 @@ const WHY_US_CARDS = [
     shortTitle: "ЛЮДИ",
     desc: "Больше чем спорт. Турниры, вечеринки и новые друзья каждую неделю.",
     img: "/IMG_9758(2).jpg"
+  },
+  {
+    title: "ТУРНИРЫ И ВЫЕЗДЫ",
+    shortTitle: "СОБЫТИЯ",
+    desc: "Мы регулярно выезжаем в разные уголки Татарстана, проводим веселые сборы и любительские соревнования. Скучно не будет!",
+    img: eventsCardImg
   }
 ];
 
@@ -221,6 +222,7 @@ const Home: React.FC = () => {
 
   // API Data States
   const [upcomingSessions, setUpcomingSessions] = useState<Session[]>([]);
+  const [upcomingSessionsLoaded, setUpcomingSessionsLoaded] = useState(false);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [singleVisitPrice, setSingleVisitPrice] = useState<number>(1200);
 
@@ -236,33 +238,28 @@ const Home: React.FC = () => {
     // FETCH DATA
     const fetchData = async () => {
       try {
-        // 1. Sessions - получаем ближайшие доступные тренировки
+        // 1. Sessions - запрашиваем больше сессий, берём первые 3 будущие
         const sessionsRes = await apiClient.get<{ data: Session[] }>('/sessions', { 
-            limit: 3, 
-            available_only: true, // Только с доступными местами
-            date_from: new Date().toISOString().split('T')[0], // С сегодняшнего дня
-            // include_past: false - по умолчанию только будущие
+            limit: 30, 
+            date_from: new Date().toISOString().split('T')[0],
         }).catch(() => null);
 
         if (cancelled) return;
 
         if (sessionsRes && sessionsRes.data) {
-           // Filter out past sessions on client side too
            const now = new Date();
-           const futureSessions = sessionsRes.data.filter(session => {
-             const sessionDateTime = new Date(session.datetime);
-             return sessionDateTime > now;
-           });
+           const futureSessions = sessionsRes.data
+             .filter(session => new Date(session.datetime) > now)
+             .slice(0, 3);
            setUpcomingSessions(futureSessions);
         } else {
-           // Fallback - also filter mock data
            const now = new Date();
-           const futureMockSessions = MOCK_SESSIONS.filter(session => {
-             const sessionDateTime = new Date(session.datetime);
-             return sessionDateTime > now;
-           });
+           const futureMockSessions = MOCK_SESSIONS
+             .filter(session => new Date(session.datetime) > now)
+             .slice(0, 3);
            setUpcomingSessions(futureMockSessions);
         }
+        setUpcomingSessionsLoaded(true);
 
         // 2. Memberships (for pricing blocks)
         const memsRes = await apiClient.get<{ data: Membership[] }>('/memberships').catch(() => null);
@@ -286,7 +283,7 @@ const Home: React.FC = () => {
 
       } catch (err) {
         if (!cancelled) {
-          // Silent catch for smooth fallback
+          setUpcomingSessionsLoaded(true);
           setUpcomingSessions(MOCK_SESSIONS);
           setMemberships(MOCK_MEMBERSHIPS);
           setSingleVisitPrice(1200);
@@ -600,9 +597,13 @@ const Home: React.FC = () => {
 
             {/* List */}
             <div className="flex flex-col gap-4 relative z-10">
-                {upcomingSessions.length === 0 ? (
+                {!upcomingSessionsLoaded ? (
                     <div className="text-center py-8 text-gray-500">
                         <p>Загрузка расписания...</p>
+                    </div>
+                ) : upcomingSessions.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                        <p>Нет предстоящих тренировок на ближайшие дни.</p>
                     </div>
                 ) : (
                     upcomingSessions.map((session, i) => {

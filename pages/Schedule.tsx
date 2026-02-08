@@ -6,15 +6,14 @@ import MembershipCalculator from '../components/MembershipCalculator';
 import { createTgLink } from '../constants';
 
 const FAQS = [
-  { q: "Как заморозить абонемент?", a: "Абонемент можно заморозить один раз на срок до 14 дней. Просто напишите администратору в Telegram." },
   { q: "Можно ли вернуть деньги?", a: "Возврат средств за неиспользованные занятия осуществляется по заявлению в течение 3 рабочих дней." },
   { q: "Какие способы оплаты?", a: "Мы принимаем карты, наличные и переводы. Также доступна оплата долями." },
   { q: "Что если я опаздываю?", a: "Разминка — критически важная часть. Если вы опоздали более чем на 15 минут, тренер может не допустить к интенсивной части." },
 ];
 
 const MOCK_LOCATIONS: Location[] = [
-    { id: 1, name: "Зал №1", description: "Основной зал" },
-    { id: 2, name: "Зал №2", description: "Малый зал" }
+    { id: 1, name: "Зал №1", description: "Основной зал", showLocation: true, showOnBookingScreen: true, sortOrder: 1 },
+    { id: 2, name: "Зал №2", description: "Малый зал", showLocation: true, showOnBookingScreen: true, sortOrder: 2 }
 ];
 
 const MOCK_SESSIONS: Session[] = [
@@ -283,18 +282,10 @@ const Schedule: React.FC = () => {
   const allCategories = useMemo(() => {
     const categoryMap = new Map<number, { id: number; name: string }>();
     
-    // Add all categories from cached sessions
+    // Add all categories from cached sessions (including "Детские тренировки")
     allSessionsCache.forEach(session => {
-      if (session.category) {
-        // Filter out "Детские тренировки" category
-        const categoryName = session.category.name.toLowerCase();
-        if (categoryName.includes('детск')) {
-          return; // Skip children's training category
-        }
-        
-        if (!categoryMap.has(session.category.id)) {
-          categoryMap.set(session.category.id, session.category);
-        }
+      if (session.category && !categoryMap.has(session.category.id)) {
+        categoryMap.set(session.category.id, session.category);
       }
     });
     
@@ -351,16 +342,16 @@ const Schedule: React.FC = () => {
     }).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
   }, [allSessionsCache, selectedDate, selectedLocationId, selectedCategoryId]);
   
-  // Smart dots: Check which dates have matching sessions (based on current filters)
+  // Smart dots: only dates that have at least one future session (and match filters)
   const getDateHasMatchingSessions = (dateStr: string): boolean => {
+    const now = new Date();
     return allSessionsCache.some(session => {
       if (!session.datetime) return false;
       const sessionDate = session.datetime.split('T')[0];
       if (sessionDate !== dateStr) return false;
-      
+      if (new Date(session.datetime) <= now) return false;
       if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
       if (selectedCategoryId && session.category?.id !== selectedCategoryId) return false;
-      
       return true;
     });
   };
@@ -376,6 +367,17 @@ const Schedule: React.FC = () => {
           return `${hours}:${minutes}`;
       } catch {
           return "18:00";
+      }
+  };
+
+  const formatDateShort = (iso: string) => {
+      try {
+          const date = new Date(iso);
+          const day = String(date.getUTCDate()).padStart(2, '0');
+          const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+          return `${day}.${month}`;
+      } catch {
+          return "";
       }
   };
 
@@ -611,17 +613,20 @@ const Schedule: React.FC = () => {
                                      </span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <button 
-                                      onClick={() => openBooking('session', slot.id, `${slot.name} ${formatTime(slot.datetime)}`)}
-                                      disabled={slot.availableSpots <= 0}
-                                      className={`px-4 py-3 md:px-6 md:py-3 rounded-lg font-black text-[10px] md:text-xs uppercase tracking-[0.15em] transition-all active:scale-95 ${
+                                    <a
+                                      href={createTgLink(slot.availableSpots <= 0
+                                        ? `Здравствуйте! Хочу в лист ожидания на тренировку: ${slot.name}, ${formatDateShort(slot.datetime)} ${formatTime(slot.datetime)}.`
+                                        : `Здравствуйте! Хочу записаться на тренировку: ${slot.name}, ${formatDateShort(slot.datetime)} ${formatTime(slot.datetime)}.`)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`inline-block px-4 py-3 md:px-6 md:py-3 rounded-lg font-black text-[10px] md:text-xs uppercase tracking-[0.15em] transition-all active:scale-95 ${
                                           slot.availableSpots <= 0
-                                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                          ? 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                                           : 'bg-brand-carbon text-white hover:bg-emerald-600 shadow-lg hover:shadow-emerald-500/30'
                                       }`}
                                     >
                                       {slot.availableSpots <= 0 ? 'В ЛИСТ ОЖИДАНИЯ' : 'ЗАПИСАТЬСЯ'}
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                          </div>
