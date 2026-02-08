@@ -321,7 +321,7 @@ const MembershipCalculator: React.FC = () => {
                              </button>
                              
                              <p className="text-center text-gray-500 text-[11px] sm:text-[10px] uppercase font-bold tracking-wide sm:tracking-widest mt-4 leading-relaxed px-2">
-                                 Действует 30 дней с момента активации
+                                 Действует {currentItem.sessionCount === 16 ? '60' : '30'} дней с момента покупки
                              </p>
                          </div>
                     </div>

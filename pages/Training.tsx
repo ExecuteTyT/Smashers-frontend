@@ -40,10 +40,11 @@ const Training: React.FC = () => {
 
   // 2. DATA: FAQ
   const faqs = [
-    { q: "Нужна ли своя ракетка?", a: "Нет! На первое занятие мы выдаем профессиональную ракетку Yonex бесплатно. Далее аренда — 200₽." },
-    { q: "Какая нужна обувь?", a: "Обязательно сменная обувь на светлой или немаркой (non-marking) подошве. Беговые кроссовки не рекомендуются." },
-    { q: "Есть ли душ?", a: "Да, в раздевалках есть просторные душевые, фен и сауна, которая включена в стоимость." },
-    { q: "Сколько человек в группе?", a: "Мы строго следим за качеством: максимум 12 человек на 4 корта (по 3-4 человека на тренера)." },
+    { q: "Нужна ли своя ракетка?", a: "Нет! Мы выдаем весь необходимый инвентарь: профессиональные ракетки Yonex и воланы. Все включено в стоимость занятия." },
+    { q: "Какая нужна обувь?", a: "Обязательно сменная обувь на светлой или немаркой (non-marking) подошве. Это защищает покрытие корта." },
+    { q: "Есть ли душ?", a: "Да, в раздевалках есть просторные душевые и фен." },
+    { q: "Сколько человек в группе?", a: "В группе от 12 до 32 человек, с 1-2 профессиональными тренерами. Это обеспечивает индивидуальный подход к каждому." },
+    { q: "Проводите ли вы корпоративные тренировки?", a: "Да, мы организуем корпоративные и закрытые тренировки для компаний. Напишите администратору для обсуждения деталей." },
   ];
 
   const scrollToSection = (id: string) => {
@@ -361,58 +362,44 @@ const Training: React.FC = () => {
          </div>
       </section>
 
-      {/* 4. COMPARISON WIDGET (CONVERSION FOCUSED) */}
+      {/* 4. FOUNDERS SECTION */}
       <section className="py-20 px-4 md:px-12 max-w-7xl mx-auto">
-        <h2 className="font-display font-black text-3xl md:text-5xl uppercase text-center mb-12">КАКОЙ ФОРМАТ ВЫБРАТЬ?</h2>
+        <h2 className="font-display font-black text-3xl md:text-5xl uppercase text-center mb-12">
+          ОСНОВАТЕЛИ КЛУБА
+        </h2>
         
-        {/* Tabs */}
-        <div className="flex justify-center flex-wrap gap-3 md:gap-4 mb-10">
-            {goals.map((goal) => (
-                <button 
-                    key={goal.id}
-                    onClick={() => setSelectedGoal(goal.id)}
-                    className={`px-6 py-3 md:px-8 md:py-4 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest transition-all duration-300 border-2 ${
-                        selectedGoal === goal.id 
-                        ? 'bg-brand-carbon text-white border-brand-carbon shadow-xl scale-105' 
-                        : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
-                    }`}
-                >
-                    {goal.tabTitle}
-                </button>
-            ))}
-        </div>
-
-        {/* Product Card */}
-        <div className="bg-white rounded-[32px] p-6 md:p-12 text-center border border-gray-100 shadow-2xl shadow-gray-200/50 max-w-3xl mx-auto animate-fade-in-up">
-            <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest mb-6">
-                РЕКОМЕНДУЕМ
-            </span>
-            <h3 className="font-display font-black text-2xl md:text-5xl text-brand-carbon uppercase mb-4 leading-tight">
-                {goals[selectedGoal].title}
-            </h3>
-            <p className="text-gray-500 text-base md:text-lg font-medium max-w-lg mx-auto mb-8 md:mb-10 leading-relaxed">
-                {goals[selectedGoal].desc}
-            </p>
-            
-            <div className="flex flex-col items-center justify-center mb-10">
-                <span className="text-4xl md:text-5xl font-display font-black text-brand-carbon tracking-tighter">
-                    {goals[selectedGoal].price}
-                </span>
-                <span className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-wide">
-                    {goals[selectedGoal].priceNote}
-                </span>
+        <div className="bg-white rounded-[32px] p-8 md:p-12 border border-gray-100 shadow-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            {/* Photo */}
+            <div className="rounded-3xl overflow-hidden">
+              <img 
+                src="/founders-misha-alina.jpg" 
+                alt="Миша и Алина - основатели Smashers"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://picsum.photos/seed/founders/800/600';
+                }}
+              />
             </div>
-
-            <a 
-               href={goals[selectedGoal].telegramLink} 
-               target="_blank" 
-               rel="noreferrer" 
-               className="block w-full md:max-w-md mx-auto"
-            >
-               <button className="w-full bg-gradient-to-r from-emerald-600 to-green-500 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-emerald-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-3 hover:brightness-110">
-                   ЗАПИСАТЬСЯ В TELEGRAM <i className="fa-brands fa-telegram text-lg"></i>
-               </button>
-            </a>
+            
+            {/* Text */}
+            <div>
+              <h3 className="font-display font-black text-2xl md:text-4xl mb-6">
+                МИША И АЛИНА
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                Профессиональные тренеры с многолетним опытом. 
+                Создали Smashers, чтобы сделать бадминтон доступным 
+                и увлекательным для каждого.
+              </p>
+              <p className="text-gray-500 text-base leading-relaxed">
+                Наша миссия — не только научить играть, но и создать 
+                сильное комьюнити единомышленников, где каждый найдет 
+                поддержку и мотивацию.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -452,7 +439,7 @@ const Training: React.FC = () => {
                <span className="font-display font-bold text-emerald-400 tracking-[0.3em] text-[10px] md:text-xs uppercase mb-6 border border-emerald-500/30 px-4 py-1.5 rounded-full bg-emerald-500/10">ЭКСКЛЮЗИВНЫЙ ДОСТУП</span>
                
                <h2 className="font-display font-black text-3xl md:text-6xl text-white uppercase leading-none mb-6">
-                 ПЕРВАЯ ТРЕНИРОВКА — <br/> БЕСПЛАТНО
+                 ПЕРВАЯ ТРЕНИРОВКА — <br/> ВСЕГО 700₽
                </h2>
                
                <p className="font-body text-gray-300 text-sm md:text-base max-w-md mb-12 font-medium leading-relaxed">
@@ -460,13 +447,13 @@ const Training: React.FC = () => {
                </p>
 
                <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white px-8 md:px-10 py-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.3)] transform md:scale-110 hover:scale-110 transition-transform cursor-default border border-white/20 mb-12">
-                    <span className="block text-[9px] font-black uppercase tracking-widest opacity-90 mb-1">ТВОЯ ЦЕНА</span>
-                    <span className="block font-display font-black text-3xl md:text-4xl">0₽</span>
+                    <span className="block text-[9px] font-black uppercase tracking-widest opacity-90 mb-1">СПЕЦИАЛЬНАЯ ЦЕНА</span>
+                    <span className="block font-display font-black text-3xl md:text-4xl">700₽</span>
                </div>
 
-               <a href={createTgLink("Здравствуйте! Хочу забрать бесплатный билет на первую тренировку.")} target="_blank" rel="noreferrer" className="w-full md:w-auto">
+               <a href={createTgLink("Здравствуйте! Хочу записаться на первую тренировку.")} target="_blank" rel="noreferrer" className="w-full md:w-auto">
                  <button className="w-full md:w-auto bg-white text-slate-900 font-display font-black text-lg md:text-xl py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] active:scale-95 transition-all uppercase tracking-widest group relative overflow-hidden">
-                   <span className="relative z-10 font-black">ЗАБРАТЬ БИЛЕТ</span>
+                   <span className="relative z-10 font-black">ЗАПИСАТЬСЯ</span>
                    <div className="absolute inset-0 bg-gray-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                  </button>
                </a>

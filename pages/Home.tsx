@@ -142,15 +142,15 @@ const REVIEWS = [
 
 const WHY_US_CARDS = [
   {
-    title: "ПРОФЕССИОНАЛЬНЫЕ КОРТЫ",
-    shortTitle: "КОРТЫ",
-    desc: "4 сертифицированных корта с амортизирующим покрытием. Твои колени скажут спасибо.",
-    img: "/Gemini_Generated_Image_iacv1piacv1piacv.png"
+    title: "ТУРНИРЫ И ВЫЕЗДЫ",
+    shortTitle: "СОБЫТИЯ",
+    desc: "Мы регулярно выезжаем в разные уголки Татарстана, проводим веселые сборы и любительские соревнования. Скучно не будет!",
+    img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop"
   },
   {
-    title: "ОБОРУДОВАНИЕ YONEX",
-    shortTitle: "YONEX",
-    desc: "Играйте профессиональными воланами и ракетками. Мы предоставляем топовый инвентарь бесплатно на каждую тренировку.",
+    title: "КОМАНДА",
+    shortTitle: "КОМАНДА",
+    desc: "Профессиональные тренеры, действующие спортсмены сборной, мастера спорта познакомят вас с бадминтоном и влюбят в этот спорт.",
     img: "/Gemini_Generated_Image_l5hojql5hojql5ho.png"
   },
   {
@@ -247,10 +247,21 @@ const Home: React.FC = () => {
         if (cancelled) return;
 
         if (sessionsRes && sessionsRes.data) {
-           setUpcomingSessions(sessionsRes.data);
+           // Filter out past sessions on client side too
+           const now = new Date();
+           const futureSessions = sessionsRes.data.filter(session => {
+             const sessionDateTime = new Date(session.datetime);
+             return sessionDateTime > now;
+           });
+           setUpcomingSessions(futureSessions);
         } else {
-           // Fallback
-           setUpcomingSessions(MOCK_SESSIONS);
+           // Fallback - also filter mock data
+           const now = new Date();
+           const futureMockSessions = MOCK_SESSIONS.filter(session => {
+             const sessionDateTime = new Date(session.datetime);
+             return sessionDateTime > now;
+           });
+           setUpcomingSessions(futureMockSessions);
         }
 
         // 2. Memberships (for pricing blocks)
@@ -344,6 +355,21 @@ const Home: React.FC = () => {
      return 'green';
   };
 
+  // Calculate live players count based on upcoming sessions
+  const getLivePlayersCount = () => {
+    const now = new Date();
+    const nearFuture = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3 hours ahead
+    
+    const hasNearbySession = upcomingSessions.some(session => {
+      const sessionTime = new Date(session.datetime);
+      return sessionTime >= now && sessionTime <= nearFuture;
+    });
+    
+    return hasNearbySession ? Math.floor(Math.random() * 13) + 8 : 0; // 8-20 if session nearby, 0 otherwise
+  };
+
+  const livePlayersCount = getLivePlayersCount();
+
   return (
     <div className="w-full bg-brand-ghost overflow-x-hidden">
       
@@ -374,7 +400,7 @@ const Home: React.FC = () => {
              <div className="inline-flex items-center gap-3 mb-8 md:mb-12 animate-[fadeInUp_0.8s_ease-out]">
                 <span className="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-emerald-400 font-black uppercase tracking-[0.2em] text-[10px] md:text-xs shadow-lg flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]"></span>
-                    КАЗАНЬ • EST. 2026
+                    КАЗАНЬ • EST 2023
                 </span>
             </div>
 
@@ -432,20 +458,27 @@ const Home: React.FC = () => {
             <i className="fa-solid fa-chevron-down text-white"></i>
         </div>
         
-        {/* Hero Footer Status */}
-        <div className="absolute bottom-0 right-0 p-8 hidden md:block animate-[fadeIn_2s_ease-out_1.2s_both]">
-             <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10">
-                 <div className="flex -space-x-3">
-                    {[1,2,3].map(i => (
-                        <img key={i} src={`https://picsum.photos/seed/p${i}/50/50`} className="w-8 h-8 rounded-full border-2 border-[#0F172A]" alt="User" />
-                    ))}
-                 </div>
-                 <div>
-                     <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">LIVE</p>
-                     <p className="text-xs font-bold text-white">24 игрока на корте</p>
-                 </div>
-             </div>
-        </div>
+        {/* Hero Footer Status - Premium Glass Badge */}
+        {livePlayersCount > 0 && (
+          <div className="absolute bottom-8 right-8 z-20 hidden md:block animate-[fadeIn_2s_ease-out_1.2s_both]">
+               <div className="flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-full shadow-lg">
+                   
+                   {/* Pulse Indicator */}
+                   <div className="relative flex items-center justify-center w-2.5 h-2.5">
+                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                   </div>
+
+                   {/* Label & Count */}
+                   <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
+                       <span className="w-[1px] h-3 bg-white/20"></span>
+                       <span className="text-xs text-white font-medium tracking-wide">{livePlayersCount} ИГРОКОВ НА КОРТЕ</span>
+                   </div>
+
+               </div>
+          </div>
+        )}
 
         <style>{`
           @keyframes slideInRight {
@@ -465,7 +498,7 @@ const Home: React.FC = () => {
             </h2>
           </div>
           <p className="text-gray-500 font-bold uppercase tracking-widest text-xs md:text-sm max-w-xs text-right hidden md:block leading-relaxed">
-            От первых шагов до турнирного золота. <br/>Найди свой ритм игры.
+            Твой спорт. Твои люди. Твой драйв. <br/>Просто приходи и играй.
           </p>
           <div className="md:hidden flex justify-end">
             <span className="bg-white text-brand-carbon px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm animate-pulse">
@@ -478,18 +511,18 @@ const Home: React.FC = () => {
         <div className="flex flex-row overflow-x-auto md:grid md:grid-cols-12 gap-5 md:gap-6 pb-12 md:pb-0 scrollbar-hide snap-x snap-mandatory scroll-smooth w-[calc(100%+3rem)] -ml-6 px-6 md:w-auto md:ml-0 md:px-0">
           <FormatCard 
             title="Для начинающих"
-            desc="Фундамент техники. Хват, перемещения и первый точный удар."
+            desc="База и фундамент. Хват, правила, перемещения и основы техники."
             img="/Для начинающих.png"
             price="800₽"
-            schedule="ВТ, ЧТ 19:00"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
             title="Для продолжающих"
-            desc="Тактика, выносливость и мощные смэши. Уровень PRO."
+            desc="Более глубокое погружение в технику и тактику, совершенствование взаимодействий и видения игры."
             img="/Для продолжающих.png"
             price="900₽"
-            schedule="ПН, СР, ПТ 19:00"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
             isHit={true}
           />
@@ -498,15 +531,15 @@ const Home: React.FC = () => {
             desc="Спарринги, эмоции и реальная игровая практика без пауз."
             img="/Игровая.png"
             price="600₽"
-            schedule="Каждый день"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
             title="Американка"
-            desc="Турнирный формат 'на вылет'. Чистый адреналин."
+            desc="Каждая игра с новым партнером и новым соперником. Один из самых весёлых и азартных форматов игры."
             img="/Американка2.png"
             price="1000₽"
-            schedule="СБ 14:00"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
@@ -514,7 +547,7 @@ const Home: React.FC = () => {
             desc="1 на 1 с тренером. Максимальный фокус на твоих ошибках."
             img="/Персональная.png"
             price="2000₽"
-            schedule="По записи"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
@@ -522,15 +555,23 @@ const Home: React.FC = () => {
             desc="Тренировка для двоих. Эффективно и выгодно."
             img="/Сплит-тренировка.png"
             price="1400₽"
-            schedule="По записи"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
           <FormatCard 
-            title="Детская Академия"
+            title="Мини-группы"
+            desc="Малая группа до 4 человек. Индивидуальный подход по цене групповой тренировки."
+            img="/Gemini_Generated_Image_2l2s5r2l2s5r2l2s.png"
+            price="1200₽"
+            schedule="1.5 часа"
+            gridSpan="md:col-span-3"
+          />
+          <FormatCard 
+            title="Детские тренировки"
             desc="Спорт, дисциплина и веселье для будущих чемпионов (6-14 лет)."
             img="/Детская академия.png"
             price="600₽"
-            schedule="ПН, СР, ПТ 16:00"
+            schedule="1.5 часа"
             gridSpan="md:col-span-3"
           />
         </div>
@@ -710,7 +751,7 @@ const Home: React.FC = () => {
                <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-gradient-to-br from-white/10 via-transparent to-transparent rotate-45 pointer-events-none"></div>
 
                <h3 className="relative z-10 font-display font-black text-2xl md:text-3xl uppercase mb-2 tracking-wide">АБОНЕМЕНТЫ</h3>
-               <p className="relative z-10 text-sm text-emerald-200 font-bold uppercase tracking-widest mb-8">4 • 8 • 12 ТРЕНИРОВОК</p>
+               <p className="relative z-10 text-sm text-emerald-200 font-bold uppercase tracking-widest mb-8">4 • 8 • 16 ТРЕНИРОВОК</p>
                
                <div className="relative z-10 mb-8">
                   <div className="text-4xl md:text-5xl font-display font-black text-white mb-2">ВЫГОДА ДО 20%</div>
@@ -718,7 +759,7 @@ const Home: React.FC = () => {
                </div>
                
                <ul className="relative z-10 space-y-4 mb-10 flex-grow">
-                  {['Заморозка абонемента', 'Приоритетная запись', 'Инвентарь включен'].map(item => (
+                  {['Инвентарь включен'].map(item => (
                      <li key={item} className="flex items-center gap-3 text-sm font-bold text-white/90">
                         <div className="w-5 h-5 rounded-full bg-brand-lime/20 flex items-center justify-center text-brand-lime text-xs shrink-0"><i className="fa-solid fa-check"></i></div> 
                         {item}
@@ -859,7 +900,7 @@ const Home: React.FC = () => {
                <span className="font-display font-bold text-emerald-400 tracking-[0.3em] text-[10px] md:text-xs uppercase mb-6 border border-emerald-500/30 px-4 py-1.5 rounded-full bg-emerald-500/10">ЭКСКЛЮЗИВНЫЙ ДОСТУП</span>
                
                <h2 className="font-display font-black text-3xl md:text-6xl text-white uppercase leading-none mb-6">
-                 ПЕРВАЯ ТРЕНИРОВКА — <br/> БЕСПЛАТНО
+                 ПЕРВАЯ ТРЕНИРОВКА — <br/> ВСЕГО 700₽
                </h2>
                
                <p className="font-body text-gray-300 text-sm md:text-base max-w-md mb-12 font-medium leading-relaxed">
@@ -878,19 +919,19 @@ const Home: React.FC = () => {
                  
                  {/* New Price Badge */}
                  <div className="bg-gradient-to-r from-emerald-600 to-green-500 text-white px-8 md:px-10 py-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.3)] transform md:scale-110 hover:scale-110 transition-transform cursor-default border border-white/20">
-                    <span className="block text-[9px] font-black uppercase tracking-widest opacity-90 mb-1">ТВОЯ ЦЕНА</span>
-                    <span className="block font-display font-black text-3xl md:text-4xl">0₽</span>
+                    <span className="block text-[9px] font-black uppercase tracking-widest opacity-90 mb-1">СПЕЦИАЛЬНАЯ ЦЕНА</span>
+                    <span className="block font-display font-black text-3xl md:text-4xl">700₽</span>
                  </div>
                </div>
 
                {/* Button */}
                <a 
-                  href={createTgLink("Здравствуйте! Хочу забрать бесплатный билет на первую тренировку.")}
+                  href={createTgLink("Здравствуйте! Хочу записаться на первую тренировку.")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full md:w-auto bg-white text-slate-900 font-display font-black text-lg md:text-xl py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all uppercase tracking-widest group relative overflow-hidden inline-block text-center"
                >
-                 <span className="relative z-10 font-black">ЗАБРАТЬ БИЛЕТ</span>
+                 <span className="relative z-10 font-black">ЗАПИСАТЬСЯ</span>
                  <div className="absolute inset-0 bg-gray-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                </a>
              </div>

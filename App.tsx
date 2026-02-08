@@ -7,6 +7,8 @@ import Training from './pages/Training';
 import Schedule from './pages/Schedule';
 import Contacts from './pages/Contacts';
 import FAQ from './pages/FAQ';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import NotFound from './pages/NotFound';
 import ScrollToTop from './components/ScrollToTop';
 import { BookingProvider } from './context/BookingContext';
 import { MembershipProvider } from './context/MembershipContext';
@@ -25,6 +27,8 @@ const App: React.FC = () => {
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
           <BookingModal />

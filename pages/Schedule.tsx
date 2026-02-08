@@ -329,11 +329,17 @@ const Schedule: React.FC = () => {
   
   // Filter sessions by date and filters (client-side)
   const filteredSessions = useMemo(() => {
+    const now = new Date();
+    
     return allSessionsCache.filter(session => {
       // Date filter
       if (!session.datetime) return false;
       const sessionDate = session.datetime.split('T')[0];
       if (sessionDate !== selectedDate) return false;
+      
+      // Time filter - only show future sessions
+      const sessionDateTime = new Date(session.datetime);
+      if (sessionDateTime < now) return false;
       
       // Location filter
       if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
@@ -674,12 +680,12 @@ const Schedule: React.FC = () => {
 
               <div className="flex flex-col items-center">
                  <a 
-                    href={createTgLink("Здравствуйте! Хочу получить билет на пробную тренировку.")}
+                    href={createTgLink("Здравствуйте! Хочу записаться на пробную тренировку.")}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-white text-emerald-700 px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-brand-lime hover:text-brand-carbon transition-colors shadow-xl active:scale-95 inline-block text-center"
                  >
-                    ПОЛУЧИТЬ БИЛЕТ
+                    ЗАПИСАТЬСЯ
                  </a>
               </div>
            </div>

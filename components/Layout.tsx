@@ -51,23 +51,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   const generalBookingLink = createTgLink("Здравствуйте! Хочу начать тренировки в Smashers. Сориентируйте меня по расписанию.");
-  const freeTrainingLink = createTgLink("Здравствуйте! Хочу записаться на пробную бесплатную тренировку.");
+  const freeTrainingLink = createTgLink("Здравствуйте! Хочу записаться на первую тренировку за 700₽.");
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-body flex flex-col">
       
-      {/* 0. ANNOUNCEMENT BAR */}
-      <div className="fixed top-0 w-full z-[101] bg-black text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] py-2 text-center border-b border-white/10 hidden md:block">
-        <span className="opacity-80">ПЕРВАЯ ТРЕНИРОВКА — БЕСПЛАТНО.</span> 
-        <a href={freeTrainingLink} target="_blank" rel="noreferrer" className="ml-4 text-emerald-400 hover:text-emerald-300 underline underline-offset-4 decoration-emerald-500/50">ЗАБРОНИРОВАТЬ СЛОТ</a>
-      </div>
-
       {/* 1. HEADER (Sport Pro Style) */}
-      <nav className="fixed top-0 md:top-8 w-full z-[100] border-t-4 border-emerald-500 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 flex justify-between items-center px-6 md:px-12 py-3 md:py-4 transition-all duration-300 shadow-sm">
+      <nav className="fixed top-0 w-full z-[100] border-t-4 border-emerald-500 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 flex justify-between items-center px-6 md:px-12 py-3 md:py-4 transition-all duration-300 shadow-sm">
         <div className="flex items-center gap-3">
           <Link to="/" onClick={handleLogoClick} className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center transition-transform group-hover:rotate-12 shadow-lg relative overflow-hidden">
-               <i className="fa-solid fa-shuttlecock text-white text-sm md:text-lg relative z-10"></i>
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-black rounded-full flex items-center justify-center transition-transform group-hover:rotate-12 shadow-lg relative overflow-hidden p-2">
+               <img 
+                 src="/badminton-black.svg" 
+                 alt="Smashers Logo"
+                 className="w-full h-full object-contain invert relative z-10"
+               />
                {/* Shine effect on logo */}
                <div className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shine"></div>
             </div>
@@ -181,8 +179,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                {/* Left: Brand */}
                <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                        <i className="fa-solid fa-shuttlecock text-slate-900"></i>
+                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-2">
+                        <img 
+                          src="/badminton-white.svg" 
+                          alt="Smashers Logo"
+                          className="w-full h-full object-contain invert"
+                        />
                      </div>
                      <h2 className="font-display font-black text-2xl text-white">SMASHERS.</h2>
                   </div>
@@ -233,12 +235,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                            <i className="fa-brands fa-telegram text-lg"></i>
                        </MagneticButton>
                      </a>
-                     <MagneticButton className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all !px-0 !py-0">
-                        <i className="fa-brands fa-whatsapp text-lg"></i>
-                     </MagneticButton>
-                     <MagneticButton className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all !px-0 !py-0">
-                        <i className="fa-brands fa-vk text-lg"></i>
-                     </MagneticButton>
+                     <a href="https://wa.me/79179376427" target="_blank" rel="noreferrer">
+                       <MagneticButton className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all !px-0 !py-0">
+                          <i className="fa-brands fa-whatsapp text-lg"></i>
+                       </MagneticButton>
+                     </a>
+                     <a href="https://vk.ru/smashersclub" target="_blank" rel="noreferrer">
+                       <MagneticButton className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all !px-0 !py-0">
+                          <i className="fa-brands fa-vk text-lg"></i>
+                       </MagneticButton>
+                     </a>
                   </div>
                </div>
             </div>
@@ -248,9 +254,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                
                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-xs text-gray-500 font-medium text-center md:text-left">
                   <span>© 2026 SMASHERS CLUB. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</span>
-                  <a href="#" className="hover:text-white transition-colors underline decoration-transparent hover:decoration-white/30 underline-offset-4">
+                  <Link to="/privacy-policy" className="hover:text-white transition-colors underline decoration-transparent hover:decoration-white/30 underline-offset-4">
                     Политика конфиденциальности
-                  </a>
+                  </Link>
                </div>
 
                <div className="flex items-center gap-2">

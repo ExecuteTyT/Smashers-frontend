@@ -74,45 +74,80 @@ const Contacts: React.FC = () => {
                   </a>
                </div>
 
-               {/* CARD 3: BASE CAMP (Location) - Full width on mobile, spans 3 columns on desktop */}
-               <a
-                  href="https://yandex.ru/maps/?text=Казань, ул. Спортивная, 25"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="md:col-span-3 bg-gray-50 border border-gray-200 p-8 md:p-12 rounded-3xl group hover:scale-[1.01] transition-all duration-300 hover:border-emerald-400 hover:shadow-lg relative overflow-hidden min-h-[250px] md:min-h-[300px]"
-               >
-                  {/* Light Map Background */}
-                  <div className="absolute inset-0 bg-white opacity-90"></div>
-                  <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/light-v10/static/49.12,55.81,14,0/800x300?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw')] bg-cover bg-center opacity-30"></div>
+               {/* CARD 3: THREE LOCATIONS */}
+               <div className="md:col-span-3 bg-white border border-gray-200 p-8 md:p-12 rounded-3xl">
+                  <h2 className="font-display font-black text-2xl md:text-3xl mb-8 text-center">
+                     НАШИ ЛОКАЦИИ
+                  </h2>
                   
-                  {/* Emerald Pin in Center */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                     <div className="relative">
-                        <i className="fa-solid fa-map-pin text-4xl md:text-5xl text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></i>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-emerald-400/10 rounded-full blur-xl"></div>
-                     </div>
-                  </div>
-                  
-                  <div className="relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between h-full">
-                     <div>
-                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-emerald-500 mb-6 border border-gray-200 shadow-sm">
-                           <i className="fa-solid fa-map-location-dot text-2xl"></i>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     {/* Location 1 */}
+                     <a
+                        href="https://yandex.ru/maps/?text=Казань, Оренбургский тракт, 99"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
+                     >
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
+                           <i className="fa-solid fa-location-dot text-2xl"></i>
                         </div>
-                        <p className="text-gray-400 text-xs font-black uppercase tracking-[0.2em] mb-3">БАЗОВЫЙ ЛАГЕРЬ</p>
-                        <p className="font-display font-black text-black text-xl md:text-3xl leading-tight">
-                           г. Казань,<br/>
-                           <span className="text-emerald-600">ул. Спортивная, 25</span>
+                        <h3 className="font-display font-black text-xl mb-3 text-brand-carbon">
+                           ОРЕНБУРГСКИЙ ТРАКТ
+                        </h3>
+                        <p className="text-gray-600 text-sm font-bold mb-4">
+                           Оренбургский тракт, 99
                         </p>
-                     </div>
-                     
-                     <div className="mt-6 md:mt-0">
-                        <span className="bg-white hover:bg-emerald-50 text-black hover:text-emerald-700 px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-colors border border-gray-200 hover:border-emerald-400 inline-flex items-center gap-2 shadow-sm">
-                           ПОСТРОИТЬ МАРШРУТ
-                           <i className="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                        </span>
-                     </div>
+                        <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
+                           <span>Построить маршрут</span>
+                           <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                     </a>
+
+                     {/* Location 2 */}
+                     <a
+                        href="https://yandex.ru/maps/?text=Казань, Галимджана Баруди, 8"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
+                     >
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
+                           <i className="fa-solid fa-location-dot text-2xl"></i>
+                        </div>
+                        <h3 className="font-display font-black text-xl mb-3 text-brand-carbon">
+                           ГАЛИМДЖАНА БАРУДИ
+                        </h3>
+                        <p className="text-gray-600 text-sm font-bold mb-4">
+                           Галимджана Баруди, 8
+                        </p>
+                        <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
+                           <span>Построить маршрут</span>
+                           <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                     </a>
+
+                     {/* Location 3 */}
+                     <a
+                        href="https://yandex.ru/maps/?text=Казань, Ямашева, 7/42"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
+                     >
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
+                           <i className="fa-solid fa-location-dot text-2xl"></i>
+                        </div>
+                        <h3 className="font-display font-black text-xl mb-3 text-brand-carbon">
+                           ЯМАШЕВА
+                        </h3>
+                        <p className="text-gray-600 text-sm font-bold mb-4">
+                           Ямашева, 7/42
+                        </p>
+                        <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
+                           <span>Построить маршрут</span>
+                           <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                     </a>
                   </div>
-               </a>
+               </div>
             </div>
          </div>
       </section>
