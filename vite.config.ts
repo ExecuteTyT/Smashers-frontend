@@ -2,8 +2,13 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const OG_IMAGE_PATH = '/Gemini_Generated_Image_l5hojql5hojql5ho.png';
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const siteUrl = (env.VITE_SITE_URL || '').replace(/\/$/, '');
+    const ogImageUrl = siteUrl ? `${siteUrl}${OG_IMAGE_PATH}` : OG_IMAGE_PATH;
+
     return {
       base: '/',
       server: {
@@ -19,7 +24,15 @@ export default defineConfig(({ mode }) => {
           }
         }
       },
-      plugins: [react()],
+      plugins: [
+        react(),
+        {
+          name: 'html-og-url',
+          transformIndexHtml(html) {
+            return html.replace(/__OG_IMAGE_URL__/g, ogImageUrl);
+          },
+        },
+      ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
