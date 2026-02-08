@@ -1,8 +1,14 @@
 
 import React, { useState } from 'react';
 import { createTgLink } from '../constants';
+import { useSeo } from '../hooks/useSeo';
 
 const Training: React.FC = () => {
+  useSeo({
+    title: 'Тренировки по бадминтону',
+    description: 'Группы для новичков и продолжающих, игровые тренировки, персональные занятия. Расписание и запись на тренировки по бадминтону в Smashers.',
+    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
+  });
   const [activeTab, setActiveTab] = useState('novice');
   const [selectedGoal, setSelectedGoal] = useState<number>(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);

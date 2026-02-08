@@ -5,6 +5,7 @@ import MagneticButton from '../components/MagneticButton';
 import { useBooking } from '../context/BookingContext';
 import { apiClient, Session, Membership } from '../config/api';
 import { createTgLink } from '../constants';
+import { useSeo } from '../hooks/useSeo';
 import eventsCardImg from '../esKZ7dckWq69ui4i1ONHxWDm8AcWGLRTKKsx9FoH4-CUyFVkboUas7XHtf-UZHNDm_YBPZ8QkSmSs1VIaDplcTc7.jpg';
 
 // --- COMPONENTS ---
@@ -217,6 +218,11 @@ const MOCK_MEMBERSHIPS: Membership[] = [
 // --- MAIN PAGE ---
 
 const Home: React.FC = () => {
+  useSeo({
+    title: 'Smashers | Бадминтонный клуб в Казани',
+    description: 'Бадминтонный клуб Smashers в Казани: групповые и персональные тренировки, турниры, выезды. Запись на занятия и абонементы — начните играть с нами.',
+    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
+  });
   const [scrollY, setScrollY] = useState(0);
   const { openBooking } = useBooking();
 

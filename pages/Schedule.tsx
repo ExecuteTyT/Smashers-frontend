@@ -4,6 +4,7 @@ import { useBooking } from '../context/BookingContext';
 import { apiClient, Session, Location } from '../config/api';
 import MembershipCalculator from '../components/MembershipCalculator';
 import { createTgLink } from '../constants';
+import { useSeo } from '../hooks/useSeo';
 
 const FAQS = [
   { q: "Можно ли вернуть деньги?", a: "Возврат средств за неиспользованные занятия осуществляется по заявлению в течение 3 рабочих дней." },
@@ -153,6 +154,11 @@ const normalizeSession = (session: Session): Session => {
 };
 
 const Schedule: React.FC = () => {
+  useSeo({
+    title: 'Расписание тренировок и абонементы',
+    description: 'Актуальное расписание групповых тренировок по бадминтону в Smashers. Запись на занятия, абонементы и цены. Казань.',
+    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
+  });
   const { openBooking } = useBooking();
   const [activeMainTab, setActiveMainTab] = useState<'schedule' | 'pricing'>('schedule');
   const [openFaq, setOpenFaq] = useState<number | null>(null);

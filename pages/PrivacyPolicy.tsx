@@ -1,6 +1,13 @@
 import React from 'react';
+import { useSeo } from '../hooks/useSeo';
 
 const PrivacyPolicy: React.FC = () => {
+  useSeo({
+    title: 'Политика конфиденциальности',
+    description: 'Политика конфиденциальности персональных данных сайта бадминтонного клуба Smashers. Обработка данных при записи на тренировки.',
+    noIndex: true,
+  });
+
   return (
     <div className="bg-brand-ghost min-h-screen font-body text-brand-carbon pt-32 pb-20 px-6 md:px-12">
       <div className="max-w-4xl mx-auto bg-white p-8 md:p-16 rounded-[32px] shadow-xl border border-gray-100">

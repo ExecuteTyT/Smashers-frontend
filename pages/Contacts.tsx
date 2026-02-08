@@ -1,8 +1,14 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { createTgLink } from '../constants';
+import { useSeo } from '../hooks/useSeo';
 
 const Contacts: React.FC = () => {
+  useSeo({
+    title: 'Контакты',
+    description: 'Связь с клубом Smashers: Telegram, залы в Казани — Центр бадминтона, Ямашева, Максимус на Баруди. Запись на тренировки.',
+    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
+  });
 
   return (
     <div className="bg-brand-ghost min-h-screen font-body text-brand-carbon">

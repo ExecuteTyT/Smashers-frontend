@@ -1,7 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSeo } from '../hooks/useSeo';
 
 const NotFound: React.FC = () => {
+  useSeo({
+    title: 'Страница не найдена',
+    description: 'Запрашиваемая страница не существует. Вернитесь на главную или в расписание клуба Smashers.',
+    noIndex: true,
+  });
+
   return (
     <div className="bg-brand-ghost min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
       {/* Background Elements */}

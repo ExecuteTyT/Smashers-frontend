@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { createTgLink } from '../constants';
+import { useSeo } from '../hooks/useSeo';
 
 // --- DATA TYPES ---
 interface FAQItem {
@@ -145,6 +146,11 @@ const FAQ_DATA: FAQItem[] = [
 ];
 
 const FAQ: React.FC = () => {
+  useSeo({
+    title: 'Частые вопросы',
+    description: 'Ответы на частые вопросы о бадминтонном клубе Smashers: запись на тренировки, абонементы, оплата, что взять с собой, для новичков.',
+    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
+  });
   const [activeCategory, setActiveCategory] = useState('new');
   const [searchTerm, setSearchTerm] = useState('');
   const [openId, setOpenId] = useState<number | null>(null);
