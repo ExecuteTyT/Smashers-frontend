@@ -13,10 +13,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     
-    // Check if we're on the home page
-    // For HashRouter: pathname is '/', but we need to check the actual route
-    // location.pathname should be '/' for home page in HashRouter
-    // For other pages, pathname will be '/schedule', '/training', etc.
+    // Check if we're on the home page (BrowserRouter: pathname is '/' or '')
     const isHomePage = location.pathname === '/' || location.pathname === '';
     
     if (isHomePage) {

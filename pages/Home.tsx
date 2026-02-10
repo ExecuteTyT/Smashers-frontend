@@ -220,7 +220,7 @@ const MOCK_MEMBERSHIPS: Membership[] = [
 const Home: React.FC = () => {
   useSeo({
     title: 'Smashers | Бадминтонный клуб в Казани',
-    description: 'Бадминтонный клуб Smashers в Казани: групповые и персональные тренировки, турниры, выезды. Запись на занятия и абонементы — начните играть с нами.',
+    description: 'Бадминтон в Казани для взрослых и детей: групповые и персональные тренировки, турниры, игровые занятия. Запись на тренировки и абонементы — начните играть с нами.',
     image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
   const [scrollY, setScrollY] = useState(0);

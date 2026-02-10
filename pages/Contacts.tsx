@@ -5,8 +5,8 @@ import { useSeo } from '../hooks/useSeo';
 
 const Contacts: React.FC = () => {
   useSeo({
-    title: 'Контакты',
-    description: 'Связь с клубом Smashers: Telegram, залы в Казани — Центр бадминтона, Ямашева, Максимус на Баруди. Запись на тренировки.',
+    title: 'Контакты и залы в Казани',
+    description: 'Контакты клуба Smashers в Казани: залы — Центр бадминтона, Ямашева, Максимус на Баруди. Запись на тренировки для взрослых и детей через Telegram.',
     image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
 
