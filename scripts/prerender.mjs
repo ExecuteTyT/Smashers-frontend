@@ -1,11 +1,18 @@
 /**
  * Prerender routes for crawlers (no-JS). Run after `vite build`.
  * Serves dist, visits each route in Puppeteer, saves full HTML to dist/ or dist/<path>/index.html.
+ * Skipped on Vercel (no Chrome/Puppeteer in build env).
  */
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+if (process.env.VERCEL) {
+  console.log('[prerender] Skipping on Vercel (Puppeteer not available). SPA will be served via vercel.json rewrites.');
+  process.exit(0);
+}
+
 import puppeteer from 'puppeteer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
