@@ -312,43 +312,34 @@ const Home: React.FC = () => {
     return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
   };
 
-  // Format time without timezone offset - display as received
+  // Время сессии в Москве (API отдаёт UTC, в админке вводят по Москве)
   const formatTime = (isoString: string) => {
     try {
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return "18:00";
-        // Use UTC methods to preserve the "face value" time
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
+        return new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' }).format(date);
     } catch {
         return "18:00";
     }
   };
 
-  // Smart date label: СЕГОДНЯ, ЗАВТРА, or date
+  // Дата сессии в Москве для сравнения и отображения
+  const getDateInMoscow = (d: Date) => new Intl.DateTimeFormat('ru-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d).replace(/-/g, '');
+
+  // Smart date label: СЕГОДНЯ, ЗАВТРА, or date (всё по Москве)
   const getSmartDateLabel = (isoString: string): string => {
     try {
         const sessionDate = new Date(isoString);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const sessionDateOnly = new Date(sessionDate);
-        sessionDateOnly.setHours(0, 0, 0, 0);
-        
-        const tomorrow = new Date(today);
+        const now = new Date();
+        const sessionDay = getDateInMoscow(sessionDate);
+        const todayDay = getDateInMoscow(now);
+        const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        if (sessionDateOnly.getTime() === today.getTime()) {
-            return "СЕГОДНЯ";
-        } else if (sessionDateOnly.getTime() === tomorrow.getTime()) {
-            return "ЗАВТРА";
-        } else {
-            // Format as "3 ФЕВ"
-            const day = sessionDate.getUTCDate();
-            const month = sessionDate.toLocaleDateString('ru-RU', { month: 'short' }).toUpperCase().replace('.', '');
-            return `${day} ${month}`;
-        }
+        const tomorrowDay = getDateInMoscow(tomorrow);
+
+        if (sessionDay === todayDay) return "СЕГОДНЯ";
+        if (sessionDay === tomorrowDay) return "ЗАВТРА";
+        return new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', day: 'numeric', month: 'short' }).format(sessionDate).toUpperCase().replace('.', '');
     } catch {
         return "";
     }

@@ -257,6 +257,14 @@ const Schedule: React.FC = () => {
   }, []); // Only on mount
 
   // --- DATE STRIP GENERATION (with pagination) ---
+  const MOSCOW_TZ = 'Europe/Moscow';
+  // Дата «сегодня» в Москве (YYYY-MM-DD), для сравнения с сессиями и полоской
+  const getTodayMoscowDateStr = () =>
+    new Intl.DateTimeFormat('ru-CA', { timeZone: MOSCOW_TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+
+  const getMoscowDateStr = (date: Date) =>
+    new Intl.DateTimeFormat('ru-CA', { timeZone: MOSCOW_TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+
   const generateDates = (startOffset: number = 0) => {
     const dates = [];
     const today = new Date();
@@ -265,15 +273,16 @@ const Schedule: React.FC = () => {
       d.setDate(today.getDate() + startOffset + i);
       dates.push({
         fullDate: d.toISOString().split('T')[0],
+        moscowDateStr: getMoscowDateStr(d),
         day: d.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase(),
         date: d.getDate()
       });
     }
     return dates;
   };
-  
+
   const dateStrip = generateDates(dateWindowStart);
-  
+
   const handleNextWeek = () => {
     setDateWindowStart(prev => prev + 7);
   };
@@ -362,15 +371,35 @@ const Schedule: React.FC = () => {
     });
   };
 
+  // Не показывать «сегодня» в полоске, если по Москве на сегодня уже нет предстоящих тренировок
+  const todayMoscowStr = getTodayMoscowDateStr();
+  const dateStripFiltered = dateStrip.filter((d) => {
+    const dMoscow = (d as { moscowDateStr?: string }).moscowDateStr ?? d.fullDate;
+    if (dMoscow !== todayMoscowStr) return true;
+    return getDateHasMatchingSessions(todayMoscowStr);
+  });
+
+  // Если выбранная дата скрыта (сегодня без тренировок), переключить на первый видимый день
+  useEffect(() => {
+    const strip = generateDates(dateWindowStart);
+    const filtered = strip.filter((d) => {
+      const dMoscow = (d as { moscowDateStr?: string }).moscowDateStr ?? d.fullDate;
+      if (dMoscow !== todayMoscowStr) return true;
+      return getDateHasMatchingSessions(todayMoscowStr);
+    });
+    const visible = filtered.some((d) => d.fullDate === selectedDate);
+    if (!visible && filtered.length > 0) {
+      setSelectedDate(filtered[0].fullDate);
+    }
+  }, [todayMoscowStr, dateWindowStart, selectedDate, allSessionsCache, selectedLocationId, selectedCategoryId]);
+
   // --- HELPERS ---
 
-  // Format time without timezone offset - display as received
+  // Время сессии в Москве (API отдаёт UTC, в админке вводят по Москве)
   const formatTime = (iso: string) => {
       try {
           const date = new Date(iso);
-          const hours = String(date.getUTCHours()).padStart(2, '0');
-          const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-          return `${hours}:${minutes}`;
+          return new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW_TZ, hour: '2-digit', minute: '2-digit' }).format(date);
       } catch {
           return "18:00";
       }
@@ -379,9 +408,7 @@ const Schedule: React.FC = () => {
   const formatDateShort = (iso: string) => {
       try {
           const date = new Date(iso);
-          const day = String(date.getUTCDate()).padStart(2, '0');
-          const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-          return `${day}.${month}`;
+          return new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW_TZ, day: '2-digit', month: '2-digit' }).format(date);
       } catch {
           return "";
       }
@@ -456,7 +483,7 @@ const Schedule: React.FC = () => {
               )}
               
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide flex-1 snap-x">
-                {dateStrip.map((d) => {
+                {dateStripFiltered.map((d) => {
                   const hasMatchingSessions = getDateHasMatchingSessions(d.fullDate);
                   return (
                     <button
