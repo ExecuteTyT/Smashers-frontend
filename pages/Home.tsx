@@ -927,9 +927,9 @@ const Home: React.FC = () => {
                   href={createTgLink("Здравствуйте! Хочу записаться на первую тренировку.")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full md:w-auto bg-white text-slate-900 font-display font-black text-lg md:text-xl py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all uppercase tracking-widest group relative overflow-hidden inline-block text-center"
+                  className="w-full md:w-auto min-w-0 bg-white text-slate-900 font-display font-black text-base md:text-xl py-5 px-6 md:px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] transition-all uppercase tracking-widest group relative overflow-hidden flex items-center justify-center text-center"
                >
-                 <span className="relative z-10 font-black">ЗАПИСАТЬСЯ</span>
+                 <span className="relative z-10 font-black whitespace-nowrap">ЗАПИСАТЬСЯ</span>
                  <div className="absolute inset-0 bg-gray-100 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                </a>
              </div>

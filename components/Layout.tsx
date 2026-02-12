@@ -212,10 +212,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                            <a href="tel:+79196236888" className="font-bold text-gray-300 hover:text-white transition-colors">+7 919 623-68-88</a>
                         </li>
                         <li className="flex items-start gap-3">
-                           <i className="fa-solid fa-location-dot text-emerald-500 mt-1"></i>
-                           <span className="font-bold text-gray-300">Казань, ул. Спортивная, 25</span>
-                        </li>
-                        <li className="flex items-start gap-3">
                            <i className="fa-solid fa-envelope text-emerald-500 mt-1"></i>
                            <a href="mailto:smashers.bc@yandex.ru" className="font-bold text-gray-300 hover:text-white transition-colors">smashers.bc@yandex.ru</a>
                         </li>
