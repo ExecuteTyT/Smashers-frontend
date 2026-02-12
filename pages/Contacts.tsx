@@ -96,9 +96,9 @@ const Contacts: React.FC = () => {
                   </h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     {/* Location 1 */}
+                     {/* Location 1 — Оренбургский тракт */}
                      <a
-                        href="https://yandex.ru/maps/?text=Казань, Оренбургский тракт, 99"
+                        href="https://yandex.ru/maps/org/badmintonny_klub_smashers/242836589209"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
@@ -110,17 +110,17 @@ const Contacts: React.FC = () => {
                            ОРЕНБУРГСКИЙ ТРАКТ
                         </h3>
                         <p className="text-gray-600 text-sm font-bold mb-4">
-                           Оренбургский тракт, 99
+                           ул. Оренбургский Тракт, 99
                         </p>
                         <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
-                           <span>Построить маршрут</span>
+                           <span>Smashers на карте</span>
                            <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                         </div>
                      </a>
 
-                     {/* Location 2 */}
+                     {/* Location 2 — Баруди */}
                      <a
-                        href="https://yandex.ru/maps/?text=Казань, Галимджана Баруди, 8"
+                        href="https://yandex.ru/maps/org/smashers/192550020221"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
@@ -132,17 +132,17 @@ const Contacts: React.FC = () => {
                            ГАЛИМДЖАНА БАРУДИ
                         </h3>
                         <p className="text-gray-600 text-sm font-bold mb-4">
-                           Галимджана Баруди, 8
+                           ул. Галимджана Баруди, 8
                         </p>
                         <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
-                           <span>Построить маршрут</span>
+                           <span>Smashers на карте</span>
                            <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                         </div>
                      </a>
 
-                     {/* Location 3 */}
+                     {/* Location 3 — Ямашева */}
                      <a
-                        href="https://yandex.ru/maps/?text=Казань, Ямашева, 7/42"
+                        href="https://yandex.ru/maps/org/smashers/106497854015"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="group bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 hover:border-emerald-500 hover:shadow-xl transition-all"
@@ -154,10 +154,10 @@ const Contacts: React.FC = () => {
                            ЯМАШЕВА
                         </h3>
                         <p className="text-gray-600 text-sm font-bold mb-4">
-                           Ямашева, 7/42
+                           просп. Ямашева, 7/42
                         </p>
                         <div className="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-wider">
-                           <span>Построить маршрут</span>
+                           <span>Smashers на карте</span>
                            <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
                         </div>
                      </a>
