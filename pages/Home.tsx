@@ -147,7 +147,8 @@ const WHY_US_CARDS = [
     title: "КОМАНДА",
     shortTitle: "КОМАНДА",
     desc: "Профессиональные тренеры, действующие спортсмены сборной, мастера спорта познакомят вас с бадминтоном и влюбят в этот спорт.",
-    img: "/team-why-us.jpg"
+    img: "/team-why-us.jpg",
+    imgPosition: "object-top" // кадр выше, чтобы были видны лица
   },
   {
     title: "МОЩНОЕ КОМЬЮНИТИ",
@@ -692,7 +693,7 @@ const Home: React.FC = () => {
         <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full h-[60vh] gap-4 px-4 scrollbar-hide pb-8">
             {WHY_US_CARDS.map((card, i) => (
                 <div key={i} className="flex-shrink-0 w-[85vw] h-full relative rounded-2xl overflow-hidden snap-center shadow-2xl">
-                    <img src={card.img} alt={card.title} className="absolute inset-0 w-full h-full object-cover z-0" />
+                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 ${(card as { imgPosition?: string }).imgPosition || ''}`} />
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-900 via-transparent to-transparent opacity-90"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                         <h3 className="font-display font-black text-2xl text-white uppercase mb-3 leading-none">{card.title}</h3>
@@ -706,7 +707,7 @@ const Home: React.FC = () => {
         <div className="hidden md:flex h-[600px] w-full max-w-[1440px] mx-auto gap-4 px-12">
             {WHY_US_CARDS.map((card, i) => (
                 <div key={i} className="flex-[1] hover:flex-[3] relative rounded-[32px] overflow-hidden transition-all duration-700 ease-in-out cursor-pointer group shadow-2xl">
-                    <img src={card.img} alt={card.title} className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110" />
+                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110 ${(card as { imgPosition?: string }).imgPosition || ''}`} />
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-900/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
                     <div className="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-300">
                         <h3 className="font-display font-black text-4xl text-white uppercase tracking-widest -rotate-90 whitespace-nowrap">{card.shortTitle}</h3>
