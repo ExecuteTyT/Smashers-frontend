@@ -209,7 +209,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                      <ul className="space-y-4 text-sm">
                         <li className="flex items-start gap-3">
                            <i className="fa-solid fa-phone text-emerald-500 mt-1"></i>
-                           <span className="font-bold text-gray-300">+7 (843) 123-45-67</span>
+                           <a href="tel:+79196236888" className="font-bold text-gray-300 hover:text-white transition-colors">+7 919 623-68-88</a>
                         </li>
                         <li className="flex items-start gap-3">
                            <i className="fa-solid fa-location-dot text-emerald-500 mt-1"></i>
@@ -217,7 +217,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         </li>
                         <li className="flex items-start gap-3">
                            <i className="fa-solid fa-envelope text-emerald-500 mt-1"></i>
-                           <span className="font-bold text-gray-300">info@smashers.ru</span>
+                           <a href="mailto:smashers.bc@yandex.ru" className="font-bold text-gray-300 hover:text-white transition-colors">smashers.bc@yandex.ru</a>
                         </li>
                      </ul>
                   </div>
@@ -232,7 +232,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                            <i className="fa-brands fa-telegram text-lg"></i>
                        </MagneticButton>
                      </a>
-                     <a href="https://wa.me/79179376427" target="_blank" rel="noreferrer">
+                     <a href="https://wa.me/79196236888" target="_blank" rel="noreferrer">
                        <MagneticButton className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-emerald-500 hover:border-emerald-500 hover:text-white transition-all !px-0 !py-0">
                           <i className="fa-brands fa-whatsapp text-lg"></i>
                        </MagneticButton>

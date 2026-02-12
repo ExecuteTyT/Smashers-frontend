@@ -147,7 +147,7 @@ const WHY_US_CARDS = [
     title: "КОМАНДА",
     shortTitle: "КОМАНДА",
     desc: "Профессиональные тренеры, действующие спортсмены сборной, мастера спорта познакомят вас с бадминтоном и влюбят в этот спорт.",
-    img: "/Gemini_Generated_Image_l5hojql5hojql5ho.png"
+    img: "/team-why-us.jpg"
   },
   {
     title: "МОЩНОЕ КОМЬЮНИТИ",
@@ -786,7 +786,7 @@ const Home: React.FC = () => {
                <div className="relative z-10">
                   <h3 className="font-display font-black text-2xl text-white uppercase mb-2">ПЕРСОНАЛЬНЫЕ</h3>
                   <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mb-6">С ТРЕНЕРОМ</p>
-                  <div className="text-3xl md:text-4xl font-display font-black text-white mb-8">3000₽</div>
+                  <div className="text-3xl md:text-4xl font-display font-black text-white mb-8">от 3000 руб</div>
                   <ul className="space-y-4 mb-8">
                      {['Разбор техники', 'План тренировок', 'Спарринг'].map(item => (
                         <li key={item} className="flex items-center gap-3 text-sm font-bold text-white">

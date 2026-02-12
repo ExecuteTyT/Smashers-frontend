@@ -67,7 +67,16 @@ const Contacts: React.FC = () => {
                         onClick={(e) => e.stopPropagation()}
                      >
                         <p className="font-display font-black text-black text-3xl md:text-4xl leading-none mb-2 group-hover/phone:text-emerald-600 transition-colors break-words tracking-tight">
-                           +7 919<br/>623 6888
+                           +7 919 623-68-88
+                        </p>
+                     </a>
+                     <a 
+                        href="mailto:smashers.bc@yandex.ru"
+                        className="block group/email mt-4"
+                        onClick={(e) => e.stopPropagation()}
+                     >
+                        <p className="font-body font-bold text-gray-700 text-lg group-hover/email:text-emerald-600 transition-colors break-all">
+                           smashers.bc@yandex.ru
                         </p>
                      </a>
                   </div>
