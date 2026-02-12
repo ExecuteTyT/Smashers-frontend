@@ -66,7 +66,7 @@ const Contacts: React.FC = () => {
                         className="block group/phone"
                         onClick={(e) => e.stopPropagation()}
                      >
-                        <p className="font-display font-black text-black text-3xl md:text-4xl leading-none mb-2 group-hover/phone:text-emerald-600 transition-colors break-words tracking-tight">
+                        <p className="font-display font-black text-black text-2xl md:text-4xl leading-none mb-2 group-hover/phone:text-emerald-600 transition-colors tracking-tight whitespace-nowrap">
                            +7 919 623-68-88
                         </p>
                      </a>

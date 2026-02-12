@@ -519,7 +519,6 @@ const Home: React.FC = () => {
             price="900₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
-            isHit={true}
           />
           <FormatCard 
             title="Игровая тренировка"
