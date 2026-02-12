@@ -55,18 +55,18 @@ const Contacts: React.FC = () => {
                </a>
 
                {/* CARD 2: DIRECT LINE (Phone) */}
-               <div className="bg-white border border-gray-200 p-8 md:p-10 rounded-3xl group hover:scale-[1.02] transition-all duration-300 hover:border-emerald-400 hover:shadow-lg min-h-[300px] md:min-h-[400px] flex flex-col justify-between">
-                  <div>
-                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 mb-8 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors border border-gray-200">
+               <div className="bg-white border border-gray-200 p-6 sm:p-8 md:p-10 rounded-3xl group hover:scale-[1.02] transition-all duration-300 hover:border-emerald-400 hover:shadow-lg min-h-[300px] md:min-h-[400px] flex flex-col justify-between min-w-0 overflow-hidden">
+                  <div className="min-w-0">
+                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-700 mb-6 md:mb-8 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors border border-gray-200">
                         <i className="fa-solid fa-phone text-2xl md:text-3xl"></i>
                      </div>
-                     <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-6">ПРЯМАЯ ЛИНИЯ</p>
+                     <p className="text-gray-400 text-sm font-bold uppercase tracking-wider mb-4 md:mb-6">ПРЯМАЯ ЛИНИЯ</p>
                      <a 
                         href="tel:+79196236888"
-                        className="block group/phone"
+                        className="block group/phone min-w-0"
                         onClick={(e) => e.stopPropagation()}
                      >
-                        <p className="font-display font-black text-black text-2xl md:text-4xl leading-none mb-2 group-hover/phone:text-emerald-600 transition-colors tracking-tight whitespace-nowrap">
+                        <p className="font-display font-black text-black text-lg sm:text-2xl md:text-4xl leading-tight mb-2 group-hover/phone:text-emerald-600 transition-colors tracking-tight">
                            +7 919 623-68-88
                         </p>
                      </a>
