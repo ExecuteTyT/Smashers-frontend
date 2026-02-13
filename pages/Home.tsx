@@ -647,14 +647,20 @@ const Home: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Footer: Wide Button */}
+                                {/* Footer: Wide Button — запись или лист ожидания */}
                                 <a
-                                    href={createTgLink(`Здравствуйте! Хочу записаться на тренировку: ${cleanName} ${smartDateLabel} в ${time}.`)}
+                                    href={createTgLink(session.availableSpots <= 0
+                                        ? `Здравствуйте! Хочу в лист ожидания на тренировку: ${cleanName}, ${smartDateLabel} в ${time}.`
+                                        : `Здравствуйте! Хочу записаться на тренировку: ${cleanName} ${smartDateLabel} в ${time}.`)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-full mt-2 py-3.5 rounded-xl bg-white/5 text-white font-bold uppercase text-sm tracking-wider transition-colors duration-300 group-hover:bg-emerald-500 flex items-center justify-center text-center"
+                                    className={`w-full mt-2 py-3.5 rounded-xl font-bold uppercase text-sm tracking-wider transition-colors duration-300 flex items-center justify-center text-center ${
+                                        session.availableSpots <= 0
+                                            ? 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                                            : 'bg-white/5 text-white group-hover:bg-emerald-500'
+                                    }`}
                                 >
-                                    ЗАПИСАТЬСЯ
+                                    {session.availableSpots <= 0 ? 'В ЛИСТ ОЖИДАНИЯ' : 'ЗАПИСАТЬСЯ'}
                                 </a>
                             </div>
                         );
