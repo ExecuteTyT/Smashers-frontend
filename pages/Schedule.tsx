@@ -58,6 +58,16 @@ const MOCK_SESSIONS: Session[] = [
 
 // --- UTILITY FUNCTIONS ---
 
+// Сегодня по Москве YYYY-MM-DD (для единой инициализации выбранной даты)
+const getTodayMoscowDateStrModule = (): string => {
+  const now = new Date();
+  const opts = { timeZone: 'Europe/Moscow' as const };
+  const y = Number(new Intl.DateTimeFormat('en-CA', { ...opts, year: 'numeric' }).format(now));
+  const m = Number(new Intl.DateTimeFormat('en-CA', { ...opts, month: '2-digit' }).format(now));
+  const d = Number(new Intl.DateTimeFormat('en-CA', { ...opts, day: '2-digit' }).format(now));
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+};
+
 // Remove emojis from text, replace with space so "Американка💥В группа" → "Американка В группа"
 const removeEmojis = (text: string): string => {
   if (!text) return '';
@@ -168,13 +178,18 @@ const Schedule: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [cacheDateRange, setCacheDateRange] = useState<{ from: string; to: string } | null>(null);
   
-  // --- UI STATE --- (дата по Москве YYYY-MM-DD, чтобы сегодня и тренировки на сегодня всегда видны)
-  const [selectedDate, setSelectedDate] = useState<string>(() =>
-    new Intl.DateTimeFormat('ru-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
-  );
+  // --- UI STATE --- (по умолчанию — ближайшая дата = сегодня по Москве)
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayMoscowDateStrModule);
   const [dateWindowStart, setDateWindowStart] = useState<number>(0); // Days offset from today
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+  // При открытии страницы — выбрать ближайшую дату (сегодня) и показать полоску от неё
+  useEffect(() => {
+    const today = getTodayMoscowDateStrModule();
+    setSelectedDate(today);
+    setDateWindowStart(0);
+  }, []);
 
   // --- INITIAL DATA FETCH (30 days range) ---
   useEffect(() => {
