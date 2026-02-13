@@ -325,7 +325,7 @@ const Training: React.FC = () => {
                     <div className="flex items-center justify-between bg-white border border-gray-100 p-6 rounded-2xl shadow-lg shadow-gray-200/50 mb-8">
                         <div>
                             <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">ЦЕНА</p>
-                            <p className="font-display font-black text-3xl text-brand-carbon">от 3000 руб</p>
+                            <p className="font-display font-black text-3xl text-brand-carbon whitespace-nowrap">от 3000 руб</p>
                         </div>
                         <a href={createTgLink("Здравствуйте! Меня интересует персональная тренировка. Подберите мне тренера.")} target="_blank" rel="noreferrer">
                             <button className="px-6 md:px-8 py-3 bg-gray-100 text-brand-carbon rounded-xl font-bold uppercase text-xs hover:bg-brand-carbon hover:text-white transition-colors active:scale-95">
