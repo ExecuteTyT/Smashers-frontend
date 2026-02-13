@@ -253,21 +253,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                </div>
 
                <div className="flex items-center gap-2">
-                  <a href="#" className="group flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 hover:text-gray-300 transition-all duration-300">
+                  <span className="group flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500">
                      <span className="flex items-center gap-1.5">
-                        <i className="fa-solid fa-palette text-[10px] text-emerald-500/60 group-hover:text-emerald-500 transition-colors"></i>
+                        <i className="fa-solid fa-palette text-[10px] text-emerald-500/60 transition-colors"></i>
                         <span>Дизайн</span>
                      </span>
                      <span className="text-gray-600">•</span>
                      <span className="flex items-center gap-1.5">
-                        <i className="fa-solid fa-code text-[10px] text-emerald-500/60 group-hover:text-emerald-500 transition-colors"></i>
+                        <i className="fa-solid fa-code text-[10px] text-emerald-500/60 transition-colors"></i>
                         <span>Разработка</span>
                      </span>
                      <span className="text-gray-600 mx-1">—</span>
-                     <span className="font-bold text-gray-400 group-hover:text-emerald-500 transition-colors tracking-wider">
+                     <a href="https://t.me/exxeccutte" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-400 hover:text-emerald-500 transition-colors tracking-wider">
                         BRAID GROUP
-                     </span>
-                  </a>
+                     </a>
+                  </span>
                </div>
 
             </div>
