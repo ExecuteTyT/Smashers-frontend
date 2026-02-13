@@ -142,7 +142,6 @@ const FAQ: React.FC = () => {
   useSeo({
     title: 'Частые вопросы о тренировках по бадминтону',
     description: 'Ответы на частые вопросы о бадминтоне в Казани: запись на тренировки для взрослых и детей, абонементы, оплата, что взять с собой. Клуб Smashers.',
-    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
   const [activeCategory, setActiveCategory] = useState('new');
   const [searchTerm, setSearchTerm] = useState('');

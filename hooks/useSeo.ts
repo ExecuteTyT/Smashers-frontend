@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 
 const SITE_NAME = 'Smashers';
-const DEFAULT_OG_IMAGE = '/Gemini_Generated_Image_l5hojql5hojql5ho.png';
+/** Hero background image — тот же кадр для OG/Twitter preview */
+const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=1200&auto=format&fit=crop';
 const LOCALE = 'ru_RU';
 
 const getSiteOrigin = (): string => {

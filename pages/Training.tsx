@@ -7,7 +7,6 @@ const Training: React.FC = () => {
   useSeo({
     title: 'Тренировки по бадминтону в Казани',
     description: 'Тренировки по бадминтону в Казани для взрослых и детей: группы для новичков и продолжающих, игровые занятия, персональные тренировки. Расписание и запись в Smashers.',
-    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
   const [activeTab, setActiveTab] = useState('novice');
   const [selectedGoal, setSelectedGoal] = useState<number>(0);
@@ -183,8 +182,8 @@ const Training: React.FC = () => {
                         <i className="fa-solid fa-gift text-emerald-500"></i> Инвентарь бесплатно
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <img src={encodeURI("/Группа START.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" />
-                        <img src={encodeURI("/Группа старт2.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" onError={(e) => {
+                        <img src={encodeURI("/Группа START.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl transform translate-y-8" alt="Группа START" loading="lazy" decoding="async" />
+                        <img src={encodeURI("/Группа старт2.png")} className="rounded-3xl w-full h-40 md:h-64 object-cover shadow-2xl" alt="Группа START" loading="lazy" decoding="async" onError={(e) => {
                             console.error('Image failed to load:', e.currentTarget.src);
                         }} />
                     </div>
@@ -244,7 +243,7 @@ const Training: React.FC = () => {
         <div id="advanced" className="scroll-mt-32 opacity-0 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
             <div className="flex flex-col md:flex-row-reverse gap-12 items-center">
                 <div className="w-full md:w-1/2 relative px-4 md:px-0">
-                    <img src="/ГРУППА ПРО.png" className="rounded-[40px] w-full h-[300px] md:h-[500px] object-cover shadow-2xl" alt="ГРУППА PRO" />
+                    <img src="/ГРУППА ПРО.png" className="rounded-[40px] w-full h-[300px] md:h-[500px] object-cover shadow-2xl" alt="ГРУППА PRO" loading="lazy" decoding="async" />
                     <div className="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md text-brand-carbon p-6 rounded-2xl max-w-[200px] md:max-w-xs border border-white/20 shadow-xl">
                         <p className="font-display font-black text-lg md:text-xl mb-1">PRO LEVEL</p>
                         <p className="text-xs text-gray-500 font-bold">Сложная техника и тактика.</p>
@@ -301,7 +300,7 @@ const Training: React.FC = () => {
                         </div>
                     </div>
                     <div className="md:w-1/2 relative">
-                        <img src="/Игровая.png" className="rounded-3xl w-full h-64 md:h-80 object-cover border-4 border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500" alt="Игровая тренировка" />
+                        <img src="/Игровая.png" className="rounded-3xl w-full h-64 md:h-80 object-cover border-4 border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500" alt="Игровая тренировка" loading="lazy" decoding="async" />
                         <a href={createTgLink("Здравствуйте! Меня интересует направление: Игровая тренировка. Хочу поиграть.")} target="_blank" rel="noreferrer" className="absolute -bottom-6 -left-6">
                             <button className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white text-emerald-600 font-black text-xs uppercase flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-transform border-4 border-emerald-50">
                                 ИГРАТЬ
@@ -316,7 +315,7 @@ const Training: React.FC = () => {
         <div id="individual" className="scroll-mt-32 opacity-0 animate-fade-in-up" style={{animationDelay: '0.5s'}}>
              <div className="flex flex-col md:flex-row gap-12 items-center">
                  <div className="w-full md:w-1/2 px-4 md:px-0">
-                    <img src="/Персональная.png" className="rounded-3xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-64 md:h-[400px] object-cover shadow-xl" alt="Персональная тренировка" />
+                    <img src="/Персональная.png" className="rounded-3xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-64 md:h-[400px] object-cover shadow-xl" alt="Персональная тренировка" loading="lazy" decoding="async" />
                  </div>
                  <div className="w-full md:w-1/2 px-4 md:px-0">
                     <h2 className="font-display font-black text-3xl md:text-4xl uppercase mb-4">ПЕРСОНАЛЬНО</h2>
@@ -382,6 +381,8 @@ const Training: React.FC = () => {
                 src="/founders-misha-alina.jpg" 
                 alt="Миша и Алина - основатели Smashers"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.src = 'https://picsum.photos/seed/founders/800/600';

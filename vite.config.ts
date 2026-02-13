@@ -2,12 +2,13 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const OG_IMAGE_PATH = '/Gemini_Generated_Image_l5hojql5hojql5ho.png';
+// Hero block background — используем тот же кадр для OG preview (1200px по ширине для соцсетей)
+const OG_IMAGE_PATH = 'https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=1200&auto=format&fit=crop';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     const siteUrl = (env.VITE_SITE_URL || '').replace(/\/$/, '');
-    const ogImageUrl = siteUrl ? `${siteUrl}${OG_IMAGE_PATH}` : OG_IMAGE_PATH;
+    const ogImageUrl = OG_IMAGE_PATH.startsWith('http') ? OG_IMAGE_PATH : (siteUrl ? `${siteUrl}${OG_IMAGE_PATH}` : OG_IMAGE_PATH);
 
     return {
       base: '/',

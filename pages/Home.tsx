@@ -20,7 +20,8 @@ const FormatCard: React.FC<{
   isComingSoon?: boolean;
   gridSpan?: string;
   isHit?: boolean;
-}> = ({ title, desc, img, price, schedule, membershipId, isComingSoon, gridSpan = "md:col-span-3", isHit }) => {
+  fetchPriority?: 'high' | 'low' | 'auto';
+}> = ({ title, desc, img, price, schedule, membershipId, isComingSoon, gridSpan = "md:col-span-3", isHit, fetchPriority }) => {
 
   return (
     <div className={`relative flex flex-col flex-shrink-0 ${gridSpan} bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 snap-center w-[85vw] md:w-auto md:min-w-[280px] h-auto ${isComingSoon ? 'grayscale opacity-75' : 'group'}`}>
@@ -38,6 +39,9 @@ const FormatCard: React.FC<{
           src={img.startsWith('http') ? img : encodeURI(img)} 
           alt={title} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+          loading="lazy"
+          decoding="async"
+          fetchPriority={fetchPriority}
           onError={(e) => {
             console.error('Image failed to load:', img, 'Encoded:', encodeURI(img));
             const target = e.target as HTMLImageElement;
@@ -48,7 +52,6 @@ const FormatCard: React.FC<{
               parent.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }
           }}
-          loading="lazy"
         />
         {/* Dark gradient overlay for text visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -222,7 +225,6 @@ const Home: React.FC = () => {
   useSeo({
     title: 'Smashers | Бадминтонный клуб в Казани',
     description: 'Бадминтон в Казани для взрослых и детей: групповые и персональные тренировки, турниры, игровые занятия. Запись на тренировки и абонементы — начните играть с нами.',
-    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
   const [scrollY, setScrollY] = useState(0);
   const { openBooking } = useBooking();
@@ -232,6 +234,8 @@ const Home: React.FC = () => {
   const [upcomingSessionsLoaded, setUpcomingSessionsLoaded] = useState(false);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [singleVisitPrice, setSingleVisitPrice] = useState<number>(1200);
+  // Счётчик "игроков на корте" — рандом, обновляется редко (не при скролле)
+  const [livePlayersCount, setLivePlayersCount] = useState<number>(0);
 
   useEffect(() => {
     let cancelled = false; // Защита от дублирования запросов (React StrictMode)
@@ -259,12 +263,18 @@ const Home: React.FC = () => {
              .filter(session => new Date(session.datetime) > now)
              .slice(0, 3);
            setUpcomingSessions(futureSessions);
+           const nearFuture = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+           const hasNearby = futureSessions.some(s => new Date(s.datetime) >= now && new Date(s.datetime) <= nearFuture);
+           if (hasNearby && !cancelled) setLivePlayersCount(Math.floor(Math.random() * 13) + 8);
         } else {
            const now = new Date();
            const futureMockSessions = MOCK_SESSIONS
              .filter(session => new Date(session.datetime) > now)
              .slice(0, 3);
            setUpcomingSessions(futureMockSessions);
+           const nearFuture = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+           const hasNearby = futureMockSessions.some(s => new Date(s.datetime) >= now && new Date(s.datetime) <= nearFuture);
+           if (hasNearby && !cancelled) setLivePlayersCount(Math.floor(Math.random() * 13) + 8);
         }
         setUpcomingSessionsLoaded(true);
 
@@ -294,6 +304,7 @@ const Home: React.FC = () => {
           setUpcomingSessions(MOCK_SESSIONS);
           setMemberships(MOCK_MEMBERSHIPS);
           setSingleVisitPrice(1200);
+          setLivePlayersCount(Math.floor(Math.random() * 13) + 8);
         }
       }
     };
@@ -305,6 +316,15 @@ const Home: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  // Обновлять "игроков на корте" редко (раз в 5 минут), не при скролле
+  useEffect(() => {
+    if (livePlayersCount <= 0) return;
+    const interval = setInterval(() => {
+      setLivePlayersCount(Math.floor(Math.random() * 13) + 8);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [livePlayersCount]);
 
   // Remove emojis from text, replace with space so "Американка💥В группа" → "Американка В группа"
   const removeEmojis = (text: string): string => {
@@ -349,21 +369,6 @@ const Home: React.FC = () => {
      if (spots <= 2) return 'yellow';
      return 'green';
   };
-
-  // Calculate live players count based on upcoming sessions
-  const getLivePlayersCount = () => {
-    const now = new Date();
-    const nearFuture = new Date(now.getTime() + 3 * 60 * 60 * 1000); // 3 hours ahead
-    
-    const hasNearbySession = upcomingSessions.some(session => {
-      const sessionTime = new Date(session.datetime);
-      return sessionTime >= now && sessionTime <= nearFuture;
-    });
-    
-    return hasNearbySession ? Math.floor(Math.random() * 13) + 8 : 0; // 8-20 if session nearby, 0 otherwise
-  };
-
-  const livePlayersCount = getLivePlayersCount();
 
   return (
     <div className="w-full bg-brand-ghost overflow-x-hidden">
@@ -511,6 +516,7 @@ const Home: React.FC = () => {
             price="800₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="high"
           />
           <FormatCard 
             title="Для продолжающих"
@@ -519,6 +525,7 @@ const Home: React.FC = () => {
             price="900₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="high"
           />
           <FormatCard 
             title="Игровая тренировка"
@@ -527,6 +534,7 @@ const Home: React.FC = () => {
             price="600₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
           <FormatCard 
             title="Американка"
@@ -535,6 +543,7 @@ const Home: React.FC = () => {
             price="1000₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
           <FormatCard 
             title="Персональная"
@@ -543,6 +552,7 @@ const Home: React.FC = () => {
             price="2000₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
           <FormatCard 
             title="Сплит-тренировка"
@@ -551,6 +561,7 @@ const Home: React.FC = () => {
             price="1400₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
           <FormatCard 
             title="Мини-группы"
@@ -559,6 +570,7 @@ const Home: React.FC = () => {
             price="1200₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
           <FormatCard 
             title="Детские тренировки"
@@ -567,6 +579,7 @@ const Home: React.FC = () => {
             price="600₽"
             schedule="1.5 часа"
             gridSpan="md:col-span-3"
+            fetchPriority="low"
           />
         </div>
       </section>
@@ -689,7 +702,7 @@ const Home: React.FC = () => {
         <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scroll-smooth w-full h-[60vh] gap-4 px-4 scrollbar-hide pb-8">
             {WHY_US_CARDS.map((card, i) => (
                 <div key={i} className="flex-shrink-0 w-[85vw] h-full relative rounded-2xl overflow-hidden snap-center shadow-2xl">
-                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 ${(card as { imgPosition?: string }).imgPosition || ''}`} />
+                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 ${(card as { imgPosition?: string }).imgPosition || ''}`} loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-900 via-transparent to-transparent opacity-90"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                         <h3 className="font-display font-black text-2xl text-white uppercase mb-3 leading-none">{card.title}</h3>
@@ -703,7 +716,7 @@ const Home: React.FC = () => {
         <div className="hidden md:flex h-[600px] w-full max-w-[1440px] mx-auto gap-4 px-12">
             {WHY_US_CARDS.map((card, i) => (
                 <div key={i} className="flex-[1] hover:flex-[3] relative rounded-[32px] overflow-hidden transition-all duration-700 ease-in-out cursor-pointer group shadow-2xl">
-                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110 ${(card as { imgPosition?: string }).imgPosition || ''}`} />
+                    <img src={card.img} alt={card.title} className={`absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-1000 group-hover:scale-110 ${(card as { imgPosition?: string }).imgPosition || ''}`} loading="lazy" decoding="async" />
                     <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-900/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
                     <div className="absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-300">
                         <h3 className="font-display font-black text-4xl text-white uppercase tracking-widest -rotate-90 whitespace-nowrap">{card.shortTitle}</h3>

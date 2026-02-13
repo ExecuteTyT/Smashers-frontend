@@ -157,7 +157,6 @@ const Schedule: React.FC = () => {
   useSeo({
     title: 'Расписание тренировок по бадминтону в Казани',
     description: 'Расписание тренировок по бадминтону в Казани: групповые и детские занятия, абонементы, цены. Онлайн-запись на занятия в клубе Smashers.',
-    image: '/Gemini_Generated_Image_l5hojql5hojql5ho.png',
   });
   const { openBooking } = useBooking();
   const [activeMainTab, setActiveMainTab] = useState<'schedule' | 'pricing'>('schedule');
