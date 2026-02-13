@@ -253,21 +253,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                </div>
 
                <div className="flex items-center gap-2">
-                  <span className="group flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500">
+                  <a href="https://t.me/exxeccutte" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-xs font-medium tracking-wide text-gray-500 hover:text-white transition-colors">
                      <span className="flex items-center gap-1.5">
-                        <i className="fa-solid fa-palette text-[10px] text-emerald-500/60 transition-colors"></i>
+                        <i className="fa-solid fa-palette text-[10px] text-emerald-500/60 group-hover:text-white transition-colors"></i>
                         <span>Дизайн</span>
                      </span>
-                     <span className="text-gray-600">•</span>
+                     <span className="text-gray-600 group-hover:text-gray-400">•</span>
                      <span className="flex items-center gap-1.5">
-                        <i className="fa-solid fa-code text-[10px] text-emerald-500/60 transition-colors"></i>
+                        <i className="fa-solid fa-code text-[10px] text-emerald-500/60 group-hover:text-white transition-colors"></i>
                         <span>Разработка</span>
                      </span>
-                     <span className="text-gray-600 mx-1">—</span>
-                     <a href="https://t.me/exxeccutte" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-400 hover:text-emerald-500 transition-colors tracking-wider">
+                     <span className="text-gray-600 group-hover:text-gray-400 mx-1">—</span>
+                     <span className="font-bold text-gray-400 group-hover:text-emerald-500 transition-colors tracking-wider">
                         BRAID GROUP
-                     </a>
-                  </span>
+                     </span>
+                  </a>
                </div>
 
             </div>
