@@ -1,19 +1,17 @@
 /**
  * Prerender routes for crawlers (no-JS). Run after `vite build`.
  * Serves dist, visits each route in Puppeteer, saves full HTML to dist/ or dist/<path>/index.html.
- * Skipped on Vercel (no Chrome/Puppeteer in build env).
+ * On Vercel uses puppeteer-core + @sparticuz/chromium; locally uses full Puppeteer.
  */
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-if (process.env.VERCEL) {
-  console.log('[prerender] Skipping on Vercel (Puppeteer not available). SPA will be served via vercel.json rewrites.');
-  process.exit(0);
-}
+const isVercel = Boolean(process.env.VERCEL);
 
-import puppeteer from 'puppeteer';
+const puppeteer = await import(isVercel ? 'puppeteer-core' : 'puppeteer').then((m) => m.default);
+const chromium = isVercel ? (await import('@sparticuz/chromium')).default : null;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -79,10 +77,16 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${PORT}`;
   console.log('[prerender] Server at', baseUrl);
 
-  const browser = await puppeteer.launch({
+  const launchOptions = {
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  };
+  if (isVercel && chromium) {
+    launchOptions.executablePath = await chromium.executablePath();
+    launchOptions.args = [...(chromium.args || []), '--no-sandbox', '--disable-setuid-sandbox'];
+    launchOptions.ignoreHTTPSErrors = true;
+  }
+  const browser = await puppeteer.launch(launchOptions);
 
   try {
     for (const route of ROUTES) {
