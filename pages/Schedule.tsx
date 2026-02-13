@@ -169,8 +169,10 @@ const Schedule: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [cacheDateRange, setCacheDateRange] = useState<{ from: string; to: string } | null>(null);
   
-  // --- UI STATE ---
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  // --- UI STATE --- (дата по Москве YYYY-MM-DD, чтобы сегодня и тренировки на сегодня всегда видны)
+  const [selectedDate, setSelectedDate] = useState<string>(() =>
+    new Intl.DateTimeFormat('ru-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  );
   const [dateWindowStart, setDateWindowStart] = useState<number>(0); // Days offset from today
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -258,24 +260,56 @@ const Schedule: React.FC = () => {
 
   // --- DATE STRIP GENERATION (with pagination) ---
   const MOSCOW_TZ = 'Europe/Moscow';
-  // Дата «сегодня» в Москве (YYYY-MM-DD), для сравнения с сессиями и полоской
-  const getTodayMoscowDateStr = () =>
-    new Intl.DateTimeFormat('ru-CA', { timeZone: MOSCOW_TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const opts = { timeZone: MOSCOW_TZ };
+  // Дата «сегодня» в Москве (YYYY-MM-DD), парсинг не зависит от локали (работает и в Node/SSG)
+  const getTodayMoscowDateStr = () => {
+    const now = new Date();
+    const y = Number(new Intl.DateTimeFormat('en-CA', { ...opts, year: 'numeric' }).format(now));
+    const m = Number(new Intl.DateTimeFormat('en-CA', { ...opts, month: '2-digit' }).format(now));
+    const d = Number(new Intl.DateTimeFormat('en-CA', { ...opts, day: '2-digit' }).format(now));
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  };
 
-  const getMoscowDateStr = (date: Date) =>
-    new Intl.DateTimeFormat('ru-CA', { timeZone: MOSCOW_TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+  const getMoscowDateStr = (date: Date): string => {
+    if (Number.isNaN(date.getTime())) return '';
+    try {
+      const y = Number(new Intl.DateTimeFormat('en-CA', { ...opts, year: 'numeric' }).format(date));
+      const m = Number(new Intl.DateTimeFormat('en-CA', { ...opts, month: '2-digit' }).format(date));
+      const d = Number(new Intl.DateTimeFormat('en-CA', { ...opts, day: '2-digit' }).format(date));
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    } catch {
+      return '';
+    }
+  };
 
+  // Дата сессии в Москве (API отдаёт UTC) — для сравнения с выбранной датой
+  const getSessionDateMoscow = (iso: string): string => {
+    try {
+      const date = new Date(iso);
+      return Number.isNaN(date.getTime()) ? '' : getMoscowDateStr(date);
+    } catch {
+      return '';
+    }
+  };
+
+  // Полоска дат: всегда от «сегодня по Москве» + offset, все даты в московском календаре
   const generateDates = (startOffset: number = 0) => {
+    const todayMoscow = getTodayMoscowDateStr();
+    const parts = todayMoscow.split('-').map(Number);
+    const [y, m, day] = parts.length >= 3 ? parts : [new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, new Date().getUTCDate()];
     const dates = [];
-    const today = new Date();
     for (let i = 0; i < 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + startOffset + i);
+      const d = new Date(Date.UTC(y, m - 1, day + startOffset + i, 12, 0, 0));
+      if (Number.isNaN(d.getTime())) continue;
+      const fullDate = getMoscowDateStr(d);
+      if (!fullDate) continue;
+      const dateNum = parseInt(new Intl.DateTimeFormat('en-CA', { timeZone: MOSCOW_TZ, day: 'numeric' }).format(d), 10);
+      const dayName = new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW_TZ, weekday: 'short' }).format(d).toUpperCase();
       dates.push({
-        fullDate: d.toISOString().split('T')[0],
-        moscowDateStr: getMoscowDateStr(d),
-        day: d.toLocaleDateString('ru-RU', { weekday: 'short' }).toUpperCase(),
-        date: d.getDate()
+        fullDate,
+        moscowDateStr: fullDate,
+        day: dayName,
+        date: dateNum
       });
     }
     return dates;
@@ -333,37 +367,31 @@ const Schedule: React.FC = () => {
     return Array.from(locationMap.values()).sort((a, b) => a.id - b.id);
   }, [allSessionsCache]);
   
-  // Filter sessions by date and filters (client-side)
+  // Filter sessions by date (по Москве) and filters (client-side)
   const filteredSessions = useMemo(() => {
     const now = new Date();
     
     return allSessionsCache.filter(session => {
-      // Date filter
       if (!session.datetime) return false;
-      const sessionDate = session.datetime.split('T')[0];
-      if (sessionDate !== selectedDate) return false;
+      const sessionDateMoscow = getSessionDateMoscow(session.datetime);
+      if (sessionDateMoscow !== selectedDate) return false;
       
-      // Time filter - only show future sessions
       const sessionDateTime = new Date(session.datetime);
       if (sessionDateTime < now) return false;
       
-      // Location filter
       if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
-      
-      // Category filter
       if (selectedCategoryId && session.category?.id !== selectedCategoryId) return false;
       
       return true;
     }).sort((a, b) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
   }, [allSessionsCache, selectedDate, selectedLocationId, selectedCategoryId]);
   
-  // Smart dots: only dates that have at least one future session (and match filters)
+  // Точки под датами: есть ли в этот день предстоящие тренировки (по Москве)
   const getDateHasMatchingSessions = (dateStr: string): boolean => {
     const now = new Date();
     return allSessionsCache.some(session => {
       if (!session.datetime) return false;
-      const sessionDate = session.datetime.split('T')[0];
-      if (sessionDate !== dateStr) return false;
+      if (getSessionDateMoscow(session.datetime) !== dateStr) return false;
       if (new Date(session.datetime) <= now) return false;
       if (selectedLocationId && session.location?.id !== selectedLocationId) return false;
       if (selectedCategoryId && session.category?.id !== selectedCategoryId) return false;
@@ -371,27 +399,8 @@ const Schedule: React.FC = () => {
     });
   };
 
-  // Не показывать «сегодня» в полоске, если по Москве на сегодня уже нет предстоящих тренировок
-  const todayMoscowStr = getTodayMoscowDateStr();
-  const dateStripFiltered = dateStrip.filter((d) => {
-    const dMoscow = (d as { moscowDateStr?: string }).moscowDateStr ?? d.fullDate;
-    if (dMoscow !== todayMoscowStr) return true;
-    return getDateHasMatchingSessions(todayMoscowStr);
-  });
-
-  // Если выбранная дата скрыта (сегодня без тренировок), переключить на первый видимый день
-  useEffect(() => {
-    const strip = generateDates(dateWindowStart);
-    const filtered = strip.filter((d) => {
-      const dMoscow = (d as { moscowDateStr?: string }).moscowDateStr ?? d.fullDate;
-      if (dMoscow !== todayMoscowStr) return true;
-      return getDateHasMatchingSessions(todayMoscowStr);
-    });
-    const visible = filtered.some((d) => d.fullDate === selectedDate);
-    if (!visible && filtered.length > 0) {
-      setSelectedDate(filtered[0].fullDate);
-    }
-  }, [todayMoscowStr, dateWindowStart, selectedDate, allSessionsCache, selectedLocationId, selectedCategoryId]);
+  // Всегда показывать все 7 дней в полоске (включая сегодня), чтобы 13-е и тренировки на сегодня были видны
+  const dateStripFiltered = dateStrip;
 
   // --- HELPERS ---
 

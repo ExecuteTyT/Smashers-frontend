@@ -116,6 +116,14 @@ async function main() {
     server.close();
   }
 
+  // Проверка: без этих файлов по всем URL отдаётся один index.html и без JS везде один и тот же текст
+  const expected = ROUTES.map((r) => (r === '/' ? path.join(DIST, 'index.html') : path.join(DIST, r.slice(1), 'index.html')));
+  const missing = expected.filter((p) => !fs.existsSync(p) || fs.readFileSync(p, 'utf8').length < 500);
+  if (missing.length > 0) {
+    console.warn('[prerender] WARNING: некоторые страницы не сгенерированы:', missing.map((p) => path.relative(ROOT, p)));
+    console.warn('[prerender] Без них по /training, /schedule и т.д. без JS будет показываться один и тот же fallback-текст.');
+  }
+
   console.log('[prerender] Done.');
 }
 

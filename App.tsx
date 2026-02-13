@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Training from './pages/Training';
@@ -14,28 +13,25 @@ import { BookingProvider } from './context/BookingContext';
 import { MembershipProvider } from './context/MembershipContext';
 import BookingModal from './components/BookingModal';
 
-const App: React.FC = () => {
-  return (
-    <BookingProvider>
-      <MembershipProvider>
-        <Router>
-          <ScrollToTop />
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/training" element={<Training />} />
-              <Route path="/schedule" element={<Schedule />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-          <BookingModal />
-        </Router>
-      </MembershipProvider>
-    </BookingProvider>
-  );
-};
+/** Контент приложения без роутера — роутер подставляется в entry (client: BrowserRouter, SSG: StaticRouter). */
+const App: React.FC = () => (
+  <BookingProvider>
+    <MembershipProvider>
+      <ScrollToTop />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/training" element={<Training />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/contacts" element={<Contacts />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+      <BookingModal />
+    </MembershipProvider>
+  </BookingProvider>
+);
 
 export default App;

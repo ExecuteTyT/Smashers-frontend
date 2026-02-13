@@ -47,11 +47,11 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         assetsDir: 'assets',
         sourcemap: false,
-        emptyOutDir: true,
+        emptyOutDir: !process.env.VITE_SSR_BUILD,
         rollupOptions: {
-          input: {
-            main: path.resolve(__dirname, 'index.html')
-          }
+          input: process.env.VITE_SSR_BUILD
+            ? path.resolve(__dirname, 'entry-server.tsx')
+            : { main: path.resolve(__dirname, 'index.html') }
         }
       }
     };
