@@ -418,13 +418,21 @@ const Schedule: React.FC = () => {
 
   // --- HELPERS ---
 
-  // Время сессии в Москве (API отдаёт UTC, в админке вводят по Москве)
+  // Время сессии: в админке вводят по Москве, бэкенд часто отдаёт это же время с Z (без перевода в UTC).
+  // Показываем часы:минуты из строки как есть, чтобы не получалось 23:00 вместо 20:00.
   const formatTime = (iso: string) => {
+      if (!iso || typeof iso !== 'string') return '18:00';
+      const match = iso.match(/T(\d{1,2}):(\d{2})/);
+      if (match) {
+          const h = match[1].padStart(2, '0');
+          const m = match[2];
+          return `${h}:${m}`;
+      }
       try {
           const date = new Date(iso);
           return new Intl.DateTimeFormat('ru-RU', { timeZone: MOSCOW_TZ, hour: '2-digit', minute: '2-digit' }).format(date);
       } catch {
-          return "18:00";
+          return '18:00';
       }
   };
 
