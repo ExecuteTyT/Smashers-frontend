@@ -380,9 +380,11 @@ const Home: React.FC = () => {
         <div 
             className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
             style={{
-                // High-quality shuttlecock image with dark/moody vibe
-                backgroundImage: "url('https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=2070&auto=format&fit=crop')",
-                transform: `translateY(${scrollY * 0.2}px)`, // Subtle parallax
+                // Тёмный фон — fallback, когда картинка блокируется (ad-block и т.д.)
+                background: "linear-gradient(to right, #0f0f0f 0%, #1a1a1a 50%, #2d2d2d 100%), url('https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=2070&auto=format&fit=crop')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transform: `translateY(${scrollY * 0.2}px)`,
                 willChange: 'transform'
             }}
         >

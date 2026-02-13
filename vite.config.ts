@@ -2,12 +2,14 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Hero block background — тот же кадр для OG preview. v=2 — сброс кэша превью в Telegram/ВК и т.д.
-const OG_IMAGE_PATH = 'https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=1200&auto=format&fit=crop&v=2';
+// OG image: по умолчанию Unsplash. Чтобы своя картинка (без блокировок) — положи og-image.jpg в public/ и задай VITE_OG_IMAGE_URL=https://smashersbc.ru/og-image.jpg в .env на проде
+const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1626224583764-847890e0e99b?q=80&w=1200&auto=format&fit=crop&v=2';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     const siteUrl = (env.VITE_SITE_URL || '').replace(/\/$/, '');
+    const ogImageFromEnv = (env.VITE_OG_IMAGE_URL || '').trim();
+    const OG_IMAGE_PATH = ogImageFromEnv || DEFAULT_OG_IMAGE;
     const ogImageUrl = OG_IMAGE_PATH.startsWith('http') ? OG_IMAGE_PATH : (siteUrl ? `${siteUrl}${OG_IMAGE_PATH}` : OG_IMAGE_PATH);
 
     return {
