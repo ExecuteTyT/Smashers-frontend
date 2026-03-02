@@ -5,8 +5,8 @@ import { useSeo } from '../hooks/useSeo';
 
 const Training: React.FC = () => {
   useSeo({
-    title: 'Тренировки по бадминтону в Казани',
-    description: 'Тренировки по бадминтону в Казани для взрослых и детей: группы для новичков и продолжающих, игровые занятия, персональные тренировки. Расписание и запись в Smashers.',
+    title: 'Занятия бадминтоном в Казани — клуб Smashers, секции',
+    description: 'Тренировки по бадминтону в Казани в клубе Smashers. Секции для начинающих, детей и взрослых. Профессиональные тренеры, групповые и индивидуальные занятия.',
   });
   const [activeTab, setActiveTab] = useState('novice');
   const [selectedGoal, setSelectedGoal] = useState<number>(0);

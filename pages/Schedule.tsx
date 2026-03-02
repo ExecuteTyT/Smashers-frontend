@@ -165,8 +165,8 @@ const normalizeSession = (session: Session): Session => {
 
 const Schedule: React.FC = () => {
   useSeo({
-    title: 'Расписание тренировок по бадминтону в Казани',
-    description: 'Расписание тренировок по бадминтону в Казани: групповые и детские занятия, абонементы, цены. Онлайн-запись на занятия в клубе Smashers.',
+    title: 'Расписание бадминтона в Казани — клуб Smashers, корты',
+    description: 'Актуальное расписание тренировок и аренды кортов для бадминтона в Казани. Удобное время для любителей и спортсменов. Забронируйте корт в клубе Smashers.',
   });
   const { openBooking } = useBooking();
   const [activeMainTab, setActiveMainTab] = useState<'schedule' | 'pricing'>('schedule');

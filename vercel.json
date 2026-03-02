@@ -4,6 +4,12 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "vite",
+  "redirects": [
+    { "source": "/corp", "destination": "/training", "permanent": true },
+    { "source": "/merch", "destination": "/", "permanent": true },
+    { "source": "/business_info", "destination": "/contacts", "permanent": true },
+    { "source": "/page67411365.html", "destination": "/", "permanent": true }
+  ],
   "routes": [
     { "src": "/assets/(.*)", "headers": { "cache-control": "public, max-age=31536000, immutable" } },
     { "src": "/(.*\\.(png|jpg|jpeg|gif|svg|webp|PNG|JPG|JPEG))", "headers": { "cache-control": "public, max-age=31536000, immutable" } },

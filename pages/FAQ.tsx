@@ -140,8 +140,8 @@ const FAQ_DATA: FAQItem[] = [
 
 const FAQ: React.FC = () => {
   useSeo({
-    title: 'Частые вопросы о тренировках по бадминтону',
-    description: 'Ответы на частые вопросы о бадминтоне в Казани: запись на тренировки для взрослых и детей, абонементы, оплата, что взять с собой. Клуб Smashers.',
+    title: 'Правила бадминтона — частые вопросы | Клуб Smashers',
+    description: 'Правила бадминтона, техника ударов и подачи, советы для начинающих. Ответы на частые вопросы о бадминтоне от тренеров казанского клуба Smashers. Всё просто!',
   });
   const [activeCategory, setActiveCategory] = useState('new');
   const [searchTerm, setSearchTerm] = useState('');
