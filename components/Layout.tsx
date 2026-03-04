@@ -89,8 +89,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-          <a 
-            href={generalBookingLink}
+          <a
+            href="https://t.me/badm_smashers_bot"
             target="_blank"
             rel="noreferrer"
             className="hidden md:flex btn-gradient text-white font-black text-[10px] md:text-[11px] py-3 px-6 md:px-8 rounded-full shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 transition-all uppercase tracking-widest items-center gap-2 relative overflow-hidden group"

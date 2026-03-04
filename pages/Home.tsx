@@ -439,8 +439,8 @@ const Home: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4 md:gap-6 animate-[fadeInUp_1.5s_ease-out_1s_both]">
-                <MagneticButton 
-                    onClick={() => openBooking('general', undefined, 'Запись на тренировку')}
+                <MagneticButton
+                    onClick={() => window.open(createTgLink("Здравствуйте! Хочу записаться на тренировку в Smashers."), '_blank', 'noreferrer')}
                     className="w-full sm:w-auto btn-gradient text-white py-5 px-10 rounded-xl font-black text-xs md:text-sm uppercase tracking-widest shadow-[0_10px_30px_rgba(16,185,129,0.4)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.6)] border-0 hover:scale-105 transition-transform flex justify-center"
                 >
                     ЗАПИСАТЬСЯ НА ТРЕНИРОВКУ
